@@ -2,6 +2,7 @@ import json
 import requests
 import dbinfo
 
+
 params = {"contract": dbinfo.contract, "apiKey": dbinfo.apiKey}
 
 try:
