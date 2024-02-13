@@ -52,7 +52,7 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
         sql_string = f"insert into DynamicData (Time, Number, Card, Bonus, Stands, Available_Stands, Available_Bikes, Status) values({last_update}, {number}, '{banking}', '{bonus}', {bike_stands}, {available_bike_stands}, {available_bikes}, '{status}')"
     
         with conn.cursor() as cur:
-            cur.execute("create table if not exists DynamicData (Time int NOT NULL, Number int NOT NULL, Card varchar(5) NOT NULL, Bonus varchar(5) NOT NULL, Stands int NOT NULL, Available_Stands int NOT NULL, Available_Bikes int NOT NULL, Status varchar(10) NOT NULL, PRIMARY KEY (Time, Number) )")
+            cur.execute("create table if not exists DynamicData (Time bigint NOT NULL, Number int NOT NULL, Card varchar(5) NOT NULL, Bonus varchar(5) NOT NULL, Stands int NOT NULL, Available_Stands int NOT NULL, Available_Bikes int NOT NULL, Status varchar(10) NOT NULL, PRIMARY KEY (Time, Number) )")
             cur.execute(sql_string)
             conn.commit()
             cur.execute("select * from DynamicData")
