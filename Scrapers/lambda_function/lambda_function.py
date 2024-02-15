@@ -45,7 +45,7 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
         
         sql_string = f"""INSERT INTO availability(
                         number, last_update, available_bikes, available_bikes_stands, status
-                        ) values ({number}, {last_update}, {available_bikes}, {available_bike_stands}, '{status}')""")
+                        ) values ({number}, {last_update}, {available_bikes}, {available_bike_stands}, '{status}')"""
     
         with conn.cursor() as cur:
             cur.execute(sql_string)
