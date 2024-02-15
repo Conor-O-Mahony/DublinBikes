@@ -45,7 +45,7 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
         status = station['status']
         
         sql_string = f"""INSERT INTO availability(
-                        number, last_update, available_bikes, available_bikes_stands, status
+                        number, last_update, available_bikes, available_bike_stands, status
                         ) values ({number}, {last_update}, {available_bikes}, {available_bike_stands}, '{status}')"""
     
         with conn.cursor() as cur:
@@ -60,5 +60,7 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
         conn.commit()
     except:
         logger.info("Couldn't execute final commit.")
+
+    logger.info("Finished execution successfully.")
 
     return "Added %d rows to RDS for MySQL table" %(item_count)
