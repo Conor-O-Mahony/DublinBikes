@@ -1,0 +1,11 @@
+Setting up the Lambda function to automate fetching JCDeaux Bike Data |
+-----------------------------------------------------------------------
+
+Follow the instructions given in the following article: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-lambda-tutorial.html
+When creating the deployment package as in the “Create a Lambda deployment package” section, you’ll also have to pip install requests in the same manner to the same package directory. Creating the SQS queue is unnecessary so that section can be skipped.
+
+After completing these steps, the lambda function will be set up but will not have internet access, which will prevent you from executing GET requests. To fix this, you’ll need to set up a new VPC with a NAT gateway as in: https://repost.aws/knowledge-center/internet-access-lambda-function
+
+After connecting this to your Lambda function, set up your RDS tables. Create a schema called “Bikes” and then run the 3 SQL queries given in the GitHub repository to create the static and dynamic data tables and populate the static one.
+
+Finally, you’ll need to add a trigger for the function to fire every 5 minutes. Follow how the SQS trigger is created in the first article, but instead create a EventBridge (CloudWatch Events) trigger. Set the schedule expression to “rate(5 minutes)”. The function will then attempt to add new rows to your RDS database every 5 minutes if everything is configured correctly.
