@@ -39,6 +39,7 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
 
     for station in stations:
         number = station['number']
+	last_update = station['last_update']
         available_bikes = station['available_bikes']
         available_bike_stands = station['available_bike_stands']
         status = station['status']
