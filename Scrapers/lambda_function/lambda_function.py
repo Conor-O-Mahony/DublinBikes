@@ -49,8 +49,8 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
                         ) values ({number}, {last_update}, {available_bikes}, {available_bike_stands}, '{status}')"""
     
         with conn.cursor() as cur:
-            cur.execute(sql_string)
             try:
+		cur.execute(sql_string)
                 conn.commit()
                 item_count += 1
             except:
