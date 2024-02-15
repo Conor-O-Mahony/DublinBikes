@@ -40,25 +40,27 @@ def insert_stations(stations):
         try:
             values_list = []
             for station_data in stations:
-                values_list.append({
-                    'number': station_data['number'],
-                    'address': station_data['address'],
-                    'banking': station_data['banking'],
-                    'bike_stands': station_data['bike_stands'],
-                    'bonus': station_data['bonus'],
-                    'contract_name': station_data['contract_name'],
-                    'name': station_data['name'],
-                    'position_lat': station_data['position']['lat'],
-                    'position_lng': station_data['position']['lng']
-                })
+                print(station_data)
+                # values_list.append({
+                #     'number': station_data['number'],
+                #     'address': station_data['address'],
+                #     'banking': station_data['banking'],
+                #     'bike_stands': station_data['bike_stands'],
+                #     'bonus': station_data['bonus'],
+                #     'contract_name': station_data['contract_name'],
+                #     'name': station_data['name'],
+                #     'position_lat': station_data['position']['lat'],
+                #     'position_lng': station_data['position']['lng']
+                # })
+                
 
             # conn.execute(
             #     insert(station),
             #     values_list
             # )
 
-            trans.commit()
-            print(f"Inserted {len(stations)} stations into the database")
+            # trans.commit()
+            # print(f"Inserted {len(stations)} stations into the database")
 
         except Exception as e:
             
