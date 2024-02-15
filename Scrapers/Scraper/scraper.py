@@ -41,28 +41,28 @@ def insert_stations(stations):
         
         try:
             values_list = []
-            for station_data in stations:
-                print(station_data)
-                values_list.append({
-                    'number': station_data['number'],
-                    'address': station_data['address'],
-                    'banking': station_data['banking'],
-                    'capacity': station_data['totalStands']['capacity'],
-                    'bonus': station_data['bonus'],
-                    'contractName': station_data['contractName'],
-                    'name': station_data['name'],
-                    'position_lat': station_data['position']['latitude'],
-                    'position_lng': station_data['position']['longitude'],
-                    'connected': station_data['connected'],
-                    'overflow': station_data['overflow']
-                })
+            # for station_data in stations:
+            #     print(station_data)
+            #     values_list.append({
+            #         'number': station_data['number'],
+            #         'address': station_data['address'],
+            #         'banking': station_data['banking'],
+            #         'capacity': station_data['totalStands']['capacity'],
+            #         'bonus': station_data['bonus'],
+            #         'contractName': station_data['contractName'],
+            #         'name': station_data['name'],
+            #         'position_lat': station_data['position']['latitude'],
+            #         'position_lng': station_data['position']['longitude'],
+            #         'connected': station_data['connected'],
+            #         'overflow': station_data['overflow']
+            #     })
                 
 
 # Don't run this again, the table is already populated with the stations
-            conn.execute(
-                insert(station),
-                values_list
-            )
+            # conn.execute(
+            #     insert(station),
+            #     values_list
+            # )
 
             trans.commit()
             print(f"Inserted {len(stations)} stations into the database")
