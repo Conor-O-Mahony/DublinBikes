@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS Bikes.v3station (
+CREATE TABLE IF NOT EXISTS Bikes.station (
 number INTEGER NOT NUll,
 address VARCHAR(128),
 banking INTEGER,

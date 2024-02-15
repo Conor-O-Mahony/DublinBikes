@@ -50,7 +50,7 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
         status = station['status']
         overflow_stands = station['overflowStands']
         
-        sql_string = f"""INSERT INTO v3availability(
+        sql_string = f"""INSERT INTO availability(
                         number, last_update, connected, available_bikes, available_bike_stands, mechanical_bikes,
                         electrical_bikes, electric_internal_bikes, electric_removeable_battery, status, overflow_stands
                         ) values ({number}, '{last_update}', '{connected}', {available_bikes}, {available_bike_stands},
@@ -63,7 +63,7 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
                 conn.commit()
                 item_count += 1
             except:
-                logger.info("Error: couldn't commit row.")
+                logger.info(f"Error: Station {number} has not yet updated.")
             
     try:
         conn.commit()
