@@ -15,7 +15,6 @@ try:
 except requests.exceptions.RequestException as e:
     print("Error:", e)
 
-
 def insert_stations(stations):
 
     metadata = MetaData()
