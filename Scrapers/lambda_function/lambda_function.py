@@ -1,4 +1,4 @@
-import pymysql               
+import pymysql                   
 import os
 import sys
 import logging
@@ -35,33 +35,29 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
     json_file = requests.get(url)
     stations = json.loads(json_file.text)
     
-    logger.info("SUCCESS: obtained JSON file")
-    
     item_count = 0
 
     for station in stations:
-        last_update = station['last_update']
         number = station['number']
-        banking = str(station['banking'])
-        bonus = str(station['bonus'])
-        bike_stands = station['bike_stands']
-        available_bike_stands = station['available_bike_stands']
         available_bikes = station['available_bikes']
+        available_bike_stands = station['available_bike_stands']
         status = station['status']
-    
-        sql_string = f"insert into DynamicData (Time, Number, Card, Bonus, Stands, Available_Stands, Available_Bikes, Status) values({last_update}, {number}, '{banking}', '{bonus}', {bike_stands}, {available_bike_stands}, {available_bikes}, '{status}')"
+        
+        sql_string = f"""INSERT INTO availability(
+                        number, last_update, available_bikes, available_bikes_stands, status
+                        ) values ({number}, {last_update}, {available_bikes}, {available_bike_stands}, '{status}')""")
     
         with conn.cursor() as cur:
-            cur.execute("create table if not exists DynamicData (Time bigint NOT NULL, Number int NOT NULL, Card varchar(5) NOT NULL, Bonus varchar(5) NOT NULL, Stands int NOT NULL, Available_Stands int NOT NULL, Available_Bikes int NOT NULL, Status varchar(10) NOT NULL, PRIMARY KEY (Time, Number) )")
             cur.execute(sql_string)
-            conn.commit()
-            cur.execute("select * from DynamicData")
-            logger.info("The following items have been added to the database:")
-            for row in cur:
+            try:
+                conn.commit()
                 item_count += 1
-                logger.info(row)
+            except:
+                logger.info("Error: couldn't commit row.")
+            
+    try:
+        conn.commit()
+    except:
+        logger.info("Couldn't execute final commit.")
 
-                
-    conn.commit()
-
-    return "Added %d items to RDS for MySQL table" %(item_count)
+    return "Added %d rows to RDS for MySQL table" %(item_count)
