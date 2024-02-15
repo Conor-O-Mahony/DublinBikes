@@ -28,13 +28,16 @@ def insert_availability(stations):
         Column('availability_id', Integer, primary_key=True),
         Column('number', Integer),
         Column('status', Enum('OPEN', 'CLOSED')),
-        Column('available_bikes', Integer),
-        Column('available_bike_stands', Integer),
-        Column('last_update', TIMESTAMP),
+        Column('bikes', Integer),
+        Column('stands', Integer),
+        Column('mechanicalBikes', Integer),
+        Column('electricalBikes', Integer),
+        Column('electricalInternalBatteryBikes', Integer),
+        Column('electricalRemovableBatteryBikes', Integer),
+        Column('lastUpdate', TIMESTAMP),
         Column('timestamp', TIMESTAMP, default=text('CURRENT_TIMESTAMP')), 
     )
     
-
     with dbManager.engine.connect() as conn:
         
         trans = conn.begin()
@@ -42,15 +45,19 @@ def insert_availability(stations):
         try:
             values_list = []
             for station_data in stations:
-                    last_update_timestamp = station_data['last_update'] / 1000  
-                    last_update_datetime = datetime.fromtimestamp(last_update_timestamp)
+                    last_update_timestamp = station_data['lastUpdate']
+                    last_update_datetime = datetime.strptime(last_update_timestamp, '%Y-%m-%dT%H:%M:%SZ')
                     status = station_data['status'].upper()  
                     values_list.append({
                         'number': station_data['number'],
                         'status': status,
-                        'available_bikes': station_data['available_bikes'],
-                        'available_bike_stands': station_data['available_bike_stands'],
-                        'last_update': last_update_datetime,
+                        'bikes': station_data ['totalStands']['availabilities']['bikes'],
+                        'stands': station_data['totalStands']['availabilities']['stands'],
+                        'mechanicalBikes': station_data['totalStands']['availabilities']['mechanicalBikes'],
+                        'electricalBikes': station_data['totalStands']['availabilities']['electricalBikes'],
+                        'electricalInternalBatteryBikes': station_data['totalStands']['availabilities']['electricalInternalBatteryBikes'],
+                        'electricalRemovableBatteryBikes': station_data['totalStands']['availabilities']['electricalRemovableBatteryBikes'],
+                        'lastUpdate': last_update_datetime,
                 })
         
             conn.execute(
