@@ -12,7 +12,7 @@ rds_proxy_host = os.environ['RDS_PROXY_HOST']
 db_name = os.environ['DB_NAME']
 apikey = os.environ['BIKES_APIKEY']
 
-url = f'https://api.jcdecaux.com/vls/v1/stations?contract=dublin&apiKey={apikey}'
+url = f'https://api.jcdecaux.com/vls/v3/stations?contract=dublin&apiKey={apikey}'
 
 #Log details
 logger = logging.getLogger()
@@ -39,18 +39,27 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
 
     for station in stations:
         number = station['number']
-	last_update = station['last_update']
-        available_bikes = station['available_bikes']
-        available_bike_stands = station['available_bike_stands']
+        last_update = station['lastUpdate']
+        connected = station['connected']
+        available_bikes = station['totalStands']['availabilities']['bikes']
+        available_bike_stands = station['totalStands']['availabilities']['stands']
+        mechanical_bikes = station['totalStands']['availabilities']['mechanicalBikes']
+        electrical_bikes = station['totalStands']['availabilities']['electricalBikes']
+        electric_internal_battery = station['totalStands']['availabilities']['electricalInternalBatteryBikes']
+        electric_removeable_battery = station['totalStands']['availabilities']['electricalRemovableBatteryBikes']
         status = station['status']
+        overflow_stands = station['overflowStands']
         
-        sql_string = f"""INSERT INTO availability(
-                        number, last_update, available_bikes, available_bike_stands, status
-                        ) values ({number}, {last_update}, {available_bikes}, {available_bike_stands}, '{status}')"""
+        sql_string = f"""INSERT INTO v3availability(
+                        number, last_update, connected, available_bikes, available_bike_stands, mechanical_bikes,
+                        electrical_bikes, electric_internal_bikes, electric_removeable_battery, status, overflow_stands
+                        ) values ({number}, '{last_update}', '{connected}', {available_bikes}, {available_bike_stands},
+                        {mechanical_bikes},{electrical_bikes},{electric_internal_battery},{electric_removeable_battery},
+                        '{status}','{overflow_stands}')"""
     
         with conn.cursor() as cur:
             try:
-		cur.execute(sql_string)
+                cur.execute(sql_string)
                 conn.commit()
                 item_count += 1
             except:
@@ -60,7 +69,7 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
         conn.commit()
     except:
         logger.info("Couldn't execute final commit.")
-
+        
     logger.info("Finished execution successfully.")
 
     return "Added %d rows to RDS for MySQL table" %(item_count)
