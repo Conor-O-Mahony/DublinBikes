@@ -4,6 +4,7 @@ import sys
 import logging
 import json
 import requests
+import datetime
 
 #Obtain from RDS - Make the appropraite environment variables as in https://dev.to/biplov/handling-passwords-and-secret-keys-using-environment-variables-2ei0
 user_name = os.environ['USER_NAME']
@@ -12,7 +13,7 @@ rds_proxy_host = os.environ['RDS_PROXY_HOST']
 db_name = os.environ['DB_NAME']
 apikey = os.environ['BIKES_APIKEY']
 
-url = f'https://api.jcdecaux.com/vls/v3/stations?contract=dublin&apiKey={apikey}'
+url = f'https://api.jcdecaux.com/vls/v3/stations?contract=dublin&apiKey={apikey}' #https://v4ek8y4j0k.execute-api.eu-west-1.amazonaws.com/httpsrequest_lambda_api
 
 #Log details
 logger = logging.getLogger()
@@ -30,16 +31,22 @@ logger.info("SUCCESS: Connection to RDS for MySQL instance succeeded")
 
 def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-lambda-tutorial.html
     """
-    This function creates a new RDS database table and writes records to it
+    This function GETs bike data from JCDeaux API and commits it to the RDS database
     """
     json_file = requests.get(url)
     stations = json.loads(json_file.text)
     
     item_count = 0
+    sql_string = """INSERT INTO Bikes.availability(
+                    timestamp, number, last_update, connected, available_bikes, available_bike_stands, mechanical_bikes,
+                    electrical_bikes, electric_internal_bikes, electric_removeable_battery, status, overflow_stands) 
+                    VALUES """
+                    
+    current_datetime = datetime.datetime.now()
 
     for station in stations:
         number = station['number']
-        last_update = station['lastUpdate']
+        last_update = datetime.datetime.strptime(station['lastUpdate'], "%Y-%m-%dT%H:%M:%S%z").replace(tzinfo=None)
         connected = station['connected']
         available_bikes = station['totalStands']['availabilities']['bikes']
         available_bike_stands = station['totalStands']['availabilities']['stands']
@@ -50,26 +57,21 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
         status = station['status']
         overflow_stands = station['overflowStands']
         
-        sql_string = f"""INSERT INTO availability(
-                        number, last_update, connected, available_bikes, available_bike_stands, mechanical_bikes,
-                        electrical_bikes, electric_internal_bikes, electric_removeable_battery, status, overflow_stands
-                        ) values ({number}, '{last_update}', '{connected}', {available_bikes}, {available_bike_stands},
+        sql_string += f"""('{current_datetime}', {number}, '{last_update}', {connected}, {available_bikes}, {available_bike_stands},
                         {mechanical_bikes},{electrical_bikes},{electric_internal_battery},{electric_removeable_battery},
-                        '{status}','{overflow_stands}')"""
-    
-        with conn.cursor() as cur:
-            try:
-                cur.execute(sql_string)
-                conn.commit()
-                item_count += 1
-            except:
-                logger.info(f"Error: Station {number} has not yet updated.")
+                        '{status}','{overflow_stands}'), """
+        item_count += 1
             
-    try:
-        conn.commit()
-    except:
-        logger.info("Couldn't execute final commit.")
-        
-    logger.info("Finished execution successfully.")
+    sql_string = sql_string[:-2]+';'
+            
+    with conn.cursor() as cur:
+        try:
+            cur.execute(sql_string)
+            conn.commit()
+            logger.info(f"Successfully commited {item_count} entries")
+        except:
+            logger.info("Error, could not commit entries.")
+            
+    conn.close()
 
-    return "Added %d rows to RDS for MySQL table" %(item_count)
+    return {"statusCode": 200} 

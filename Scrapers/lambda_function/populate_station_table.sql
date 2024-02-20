@@ -1,5 +1,5 @@
 INSERT INTO Bikes.station(number, address, banking, bike_stands, name, position_lat, position_lng, bonus, overflow)
-Values
+VALUES
 (42, 'Smithfield North', False, 30, 'SMITHFIELD NORTH', 53.349562, -6.278198, False, False),
 (30, 'Parnell Square North', False, 20, 'PARNELL SQUARE NORTH', 53.3537415547453, -6.26530144781526, False, False),
 (54, 'Clonmel Street', False, 33, 'CLONMEL STREET', 53.336021, -6.26298, False, False),

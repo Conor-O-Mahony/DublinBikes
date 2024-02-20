@@ -4,7 +4,7 @@ Setting up the Lambda function to automate fetching JCDeaux Bike Data |
 Follow the instructions given in the following article: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-lambda-tutorial.html
 When creating the deployment package as in the “Create a Lambda deployment package” section, you’ll also have to pip install requests in the same manner to the same package directory. Creating the SQS queue is unnecessary so that section can be skipped.
 
-After completing these steps, the lambda function will be set up but will not have internet access, which will prevent you from executing GET requests. To fix this, you’ll need to set up a new VPC with a NAT gateway as in: https://repost.aws/knowledge-center/internet-access-lambda-function
+Don't connect the lambda function to a VPC or else you will have to use a NAT gateway to give it internet access so it can execute GET requests (https://repost.aws/knowledge-center/internet-access-lambda-function). This will result in unnecessary charges for your AWS account.
 
 After connecting this to your Lambda function, set up your RDS tables. Create a schema called “Bikes” and then run the 3 SQL queries given in the GitHub repository to create the static and dynamic data tables and populate the static one.
 
