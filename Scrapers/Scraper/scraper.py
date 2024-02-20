@@ -41,28 +41,46 @@ def insert_stations(stations):
         
         try:
             values_list = []
-            # for station_data in stations:
-            #     print(station_data)
-            #     values_list.append({
-            #         'number': station_data['number'],
-            #         'address': station_data['address'],
-            #         'banking': station_data['banking'],
-            #         'capacity': station_data['totalStands']['capacity'],
-            #         'bonus': station_data['bonus'],
-            #         'contractName': station_data['contractName'],
-            #         'name': station_data['name'],
-            #         'position_lat': station_data['position']['latitude'],
-            #         'position_lng': station_data['position']['longitude'],
-            #         'connected': station_data['connected'],
-            #         'overflow': station_data['overflow']
-            #     })
-                
+            for station_data in stations:
+                values_list.append({
+                    'number': station_data['number'],
+                    'address': station_data['address'],
+                    'banking': station_data['banking'],
+                    'capacity': station_data['totalStands']['capacity'],
+                    'bonus': station_data['bonus'],
+                    'contractName': station_data['contractName'],
+                    'name': station_data['name'],
+                    'position_lat': station_data['position']['latitude'],
+                    'position_lng': station_data['position']['longitude'],
+                    'connected': station_data['connected'],
+                    'overflow': station_data['overflow']
+                })
+            
+            try: #Populate the table if empty
+                conn.execute(
+                    insert(station),
+                    values_list
+                )
 
-# Don't run this again, the table is already populated with the stations
-            # conn.execute(
-            #     insert(station),
-            #     values_list
-            # )
+            except: #If the table is already populated, update the entries
+
+                col_names = values_list[0].keys()
+
+                sql_query = f"""
+                                INSERT INTO dbikes.station ({', '.join(col_names)})
+                                VALUES 
+                            """
+                for values_dict in values_list:
+                    sql_query += f"({', '.join([f'{repr(values_dict[col])}' for col in col_names])}),\n"
+
+                sql_query = sql_query.rstrip(',\n')
+
+                sql_query += f"""AS NEW
+                                ON DUPLICATE KEY UPDATE
+                                {', '.join([f'{col} = NEW.{col}' for col in col_names])};
+                            """
+                
+                conn.execute(text(sql_query))
 
             trans.commit()
             print(f"Inserted {len(stations)} stations into the database")
