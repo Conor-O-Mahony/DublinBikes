@@ -13,7 +13,7 @@ rds_proxy_host = os.environ['RDS_PROXY_HOST']
 db_name = os.environ['DB_NAME']
 apikey = os.environ['BIKES_APIKEY']
 
-url = f'https://api.jcdecaux.com/vls/v3/stations?contract=dublin&apiKey={apikey}' #https://v4ek8y4j0k.execute-api.eu-west-1.amazonaws.com/httpsrequest_lambda_api
+url = f'https://api.jcdecaux.com/vls/v3/stations?contract=dublin&apiKey={apikey}'
 
 #Log details
 logger = logging.getLogger()
@@ -71,7 +71,5 @@ def lambda_handler(event, context): #https://docs.aws.amazon.com/AmazonRDS/lates
             logger.info(f"Successfully commited {item_count} entries")
         except:
             logger.info("Error, could not commit entries.")
-            
-    conn.close()
 
     return {"statusCode": 200} 
