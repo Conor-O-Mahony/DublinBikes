@@ -60,10 +60,20 @@ def insert_availability(stations):
                         'lastUpdate': last_update_datetime,
                 })
         
-            conn.execute(
-                insert(availability),
-                values_list
-            )
+            try:
+                conn.execute(
+                    insert(availability),
+                    values_list
+                )
+            except: #This is to catch errors that may occur if new station is added to the API
+
+                with open("scraper.py") as f: #re-scrape the static data
+                    exec(f.read())
+
+                conn.execute(
+                    insert(availability),
+                    values_list
+                )
 
             trans.commit()
             print(f"Added {len(stations)} availability rows into the database")
