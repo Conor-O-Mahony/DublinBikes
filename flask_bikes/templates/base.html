@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DublinBikes{% endblock %}</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="module" src="{{ url_for('static', filename='js/index.js') }}"></script>
     <!-- Add any common CSS or meta tags here -->
 </head>
 <body>
@@ -16,18 +19,16 @@
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/stations">Stations</a></li>
+            <li><a href="/map">Map</a></li>
+
             <!-- Add any common navigation links here -->
         </ul>
     </nav>
-
-    <main>
-        {% block content %}
+    <map>
+        {% block map %}
         {% endblock %}
-    </main>
-
-    <footer>
-        <p>&copy; 2024 DublinBikes</p>
-        <!-- Add any common footer elements here -->
-    </footer>
+    </map>
 </body>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdoZN5073jaF1EPmKvjqpi6Y2ZYbHW52Y&callback=initMap"async defer></script>
 </html>
+

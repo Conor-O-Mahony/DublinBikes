@@ -9,7 +9,7 @@ def index():
     return render_template('base.html')
 
 
-@app.route('/stations')
+@app.route('/map')
 def stations():
     try:
         # Connect to the database using the engine from dbManager
@@ -21,7 +21,7 @@ def stations():
             rows = result.fetchall()
 
             # Render the specific page template with the fetched data
-            return render_template('stations.html', rows=rows)
+            return render_template('map.html', rows=rows)
 
     except Exception as e:
         return f"Error: {e}"
