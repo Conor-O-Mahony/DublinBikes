@@ -1,2 +1,3 @@
 db.env
 flask_bikes/env
+.gitignore
