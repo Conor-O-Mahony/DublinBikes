@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DublinBikes{% endblock %}</title>
+    <!-- Add any common CSS or meta tags here -->
+</head>
+<body>
+    <header>
+        <h1>DublinBikes</h1>
+        <!-- Add any common header elements here -->
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/stations">Stations</a></li>
+            <!-- Add any common navigation links here -->
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 DublinBikes</p>
+        <!-- Add any common footer elements here -->
+    </footer>
+</body>
+</html>
