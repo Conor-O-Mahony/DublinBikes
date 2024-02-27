@@ -7,43 +7,44 @@
 <div id="map"></div>
 <script>
     // Define a JavaScript variable and embed the data
-    var stationsData = {{ stations | tojson | safe }};
+    const stations = {{ stationsData|tojson }};
 
-    // Call the mapInit() function with the data
-    initMap(stationsData);
+    async function initMap() {
 
-
-    async function initMap(stationsData) {
     const dublin = { lat: 53.3476326, lng: -6.266265 };
   
-    const { Map } = await google.maps.importLibrary("maps");
-    const { AdvancedMarkerView } = await google.maps.importLibrary("marker");
+    const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
   
     const map = new Map(document.getElementById("map"), {
-        zoom: 13,
+        zoom: 14,
         center: dublin,
         mapId: "DEMO_MAP_ID",
     });
-  
+
+    const infoWindow = new InfoWindow();
+
     try {
-        const response = await fetch('/map');
-        const data = await response.json();
+        stations.forEach(station => {
+            // Add marker to the map
+            var marker = new AdvancedMarkerElement({
+                        map,
+                        position: {lat: station.lat, lng: station.lng},
+                        title: station.title,
+                    });
 
-        stationsData.forEach(station => {
-            const pos = { lat: station.lat, lng: station.lng };
-
-            new google.maps.Marker({
-                map: map,
-                position: pos,
-                title: station.title,
+            // Marker click listener (Display title)
+            marker.addListener("click", ({ domEvent, latLng }) => {
+                const { target } = domEvent;
+                infoWindow.close();
+                infoWindow.setContent(marker.title);
+                infoWindow.open(marker.map, marker);
             });
         });
     } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching data', error);
     }
 }
-
-initMap();
 
 </script>
 {% endblock %}

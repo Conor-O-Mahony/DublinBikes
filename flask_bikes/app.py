@@ -21,7 +21,7 @@ def stations():
             stations = [{"lat": row.position_lat, "lng": row.position_lng, "title": row.name} for row in rows]
 
             # Pass the stations data to the template
-            return render_template('map.html', stations=stations)
+            return render_template('map.html', stationsData=stations)
     except Exception as e:
         return f"Error: {e}"
 
