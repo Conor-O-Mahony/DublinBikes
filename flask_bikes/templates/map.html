@@ -7,14 +7,18 @@
 <div id="map"></div>
 <script>
     // Define a JavaScript variable and embed the data
-    const stations = {{ stationsData|tojson }};
+    var stations = {{ data|tojson }};
+
+    max = 0
+
+    stations.forEach(station => {if (station.bikes > max) {max = station.bikes}})
 
     async function initMap() {
 
     const dublin = { lat: 53.3476326, lng: -6.266265 };
   
     const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+    const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
   
     const map = new Map(document.getElementById("map"), {
         zoom: 14,
@@ -27,10 +31,28 @@
     try {
         stations.forEach(station => {
             // Add marker to the map
+            pin_scale = (station.bikes)/max + 0.5   
+            
+            if (station.status === "OPEN" && station.bikes > 0) {
+                c = "#50C878";
+                bg = "#137333";
+            } else {
+                c = "#FF5733";
+                bg = "#731313";
+            }
+
+            const customPin = new PinElement({
+                background: c,
+                scale: pin_scale,
+                borderColor: bg,
+                glyph: String(station.bikes),
+                });
+
             var marker = new AdvancedMarkerElement({
                         map,
                         position: {lat: station.lat, lng: station.lng},
-                        title: station.title,
+                        title: station.name,
+                        content: customPin.element,
                     });
 
             // Marker click listener (Display title)
