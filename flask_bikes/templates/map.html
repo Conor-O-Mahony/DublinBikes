@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-
+{% block title %}Map - DublinBikes{% endblock %}
 
 {% block map %}
-<h1>Find a Bike!</h1>
+<h1>The map</h1>
 <div id="map"></div>
 <script >
     // Define a JavaScript variable and embed the data
     var stations = {{ data|tojson }};
 
-    max = 0
+    var max = 0;
 
-    stations.forEach(station => {if (station.bikes > max) {max = station.bikes}})
+    stations.forEach(station => {if (station.bikes > max) {max = station.bikes}});
 
     async function initMap() {
 
@@ -23,9 +23,8 @@
     const map = new Map(document.getElementById("map"), {
         zoom: 15,
         center: dublin,
-        mapId: "DEMO_MAP_ID",
+        mapId: "2ff326f6e5a1075b",
     });
-
 
     const infoWindow = new InfoWindow();
 
@@ -41,7 +40,7 @@
 
             // Add click listener to the marker
             marker.addListener("click", () => {
-            toggleHighlight(marker, station);
+                toggleHighlight(marker, station);
             });
         });
 
@@ -59,7 +58,7 @@ function toggleHighlight(markerView, station) {
                 markerView.content.classList.add("highlight");
                 markerView.zIndex = 1;
             }
-        }
+}
 
 function buildContent(station) {
   //Builds the html for the marker
@@ -67,7 +66,7 @@ function buildContent(station) {
 
   content.classList.add("station");
 
-  let pin_scale = ((station.bikes)/max)/1.2
+  let pin_scale = ((station.bikes)/max)/1.2;
 
   if (station.status === "OPEN" && station.bikes >0) {
     circleclass = "opencircle";
