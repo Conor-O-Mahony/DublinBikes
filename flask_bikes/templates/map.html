@@ -5,45 +5,111 @@
 {% block map %}
 <h1>Find a Bike!</h1>
 <div id="map"></div>
-<script>
+<script >
     // Define a JavaScript variable and embed the data
-    var stationsData = {{ stations | tojson | safe }};
+    var stations = {{ data|tojson }};
 
-    // Call the mapInit() function with the data
-    initMap(stationsData);
+    max = 0
 
+    stations.forEach(station => {if (station.bikes > max) {max = station.bikes}})
 
-    async function initMap(stationsData) {
+    async function initMap() {
+
     const dublin = { lat: 53.3476326, lng: -6.266265 };
-
-    const { Map } = await google.maps.importLibrary("maps");
-    const { AdvancedMarkerView } = await google.maps.importLibrary("marker");
-
+  
+    const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+  
     const map = new Map(document.getElementById("map"), {
-        zoom: 13,
+        zoom: 15,
         center: dublin,
         mapId: "DEMO_MAP_ID",
     });
 
+
+    const infoWindow = new InfoWindow();
+
     try {
-        const response = await fetch('/map');
-        const data = await response.json();
+        stations.forEach(station => {
+            // Add marker to the map
+            var marker = new AdvancedMarkerElement({
+                        map,
+                        position: {lat: station.lat, lng: station.lng},
+                        title: station.name,
+                        content: buildContent(station),
+            });
 
-        stationsData.forEach(station => {
-            const pos = { lat: station.lat, lng: station.lng };
-
-            new google.maps.Marker({
-                map: map,
-                position: pos,
-                title: station.title,
+            // Add click listener to the marker
+            marker.addListener("click", () => {
+            toggleHighlight(marker, station);
             });
         });
+
     } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching data', error);
     }
 }
 
-initMap();
+function toggleHighlight(markerView, station) {
+    // Adds functionality to the marker when clicked
+            if (markerView.content.classList.contains("highlight")) {
+                markerView.content.classList.remove("highlight");
+                markerView.zIndex = null;
+            } else {
+                markerView.content.classList.add("highlight");
+                markerView.zIndex = 1;
+            }
+        }
+
+function buildContent(station) {
+  //Builds the html for the marker
+  const content = document.createElement("div");
+
+  content.classList.add("station");
+
+  let pin_scale = ((station.bikes)/max)/1.2
+
+  if (station.status === "OPEN" && station.bikes >0) {
+    circleclass = "opencircle";
+  } else {
+    circleclass = "closedcircle";
+  }
+  
+  if (station.card === 1) {
+    card="Takes card payment"; 
+  } else {
+    card="Cash only";
+  }
+
+  content.innerHTML = `
+    <div class="${circleclass}" style="transform: scale(${0.75 + pin_scale});">
+        ${station.bikes}
+    </div>
+    <div class="details">
+        <div class="address">${station.address}</div>
+        <div class="status">${station.status}</div>
+        <div class="card">${card}</div>
+        <div class="features">
+        <div>
+            <i aria-hidden="true" class="fa-solid fa-bicycle bike" title="MechanicalBikes"></i>
+            <span class="fa-sr-only">Mechanical Bikes</span>
+            <span>${station.mechbikes}</span>
+        </div>
+        <div>
+            <i aria-hidden="true" class="fa-solid fa-battery-full battery" title="ElectricalBikes"></i>
+            <span class="fa-sr-only">Electric Bikes</span>
+            <span>${station.elecbikes}</span>
+        </div>
+        <div>
+            <i aria-hidden="true" class="fa-solid fa-square-parking parking" title="BikeStands"></i>
+            <span class="fa-sr-only">Bike Stands</span>
+            <span>${station.stands}</span>
+        </div>
+        </div>
+    </div>
+    `;
+  return content;
+}
 
 </script>
 {% endblock %}

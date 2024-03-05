@@ -7,9 +7,7 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script type="module" src="{{ url_for('static', filename='js/index.js') }}"></script>
-    {% block extra_css %}
-    {% endblock %}
-    
+    <script src="https://use.fontawesome.com/releases/v6.2.0/js/all.js"></script>
     <!-- Add any common CSS or meta tags here -->
 </head>
 <body>
@@ -39,6 +37,6 @@
     {% endblock %}
     
 </body>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdoZN5073jaF1EPmKvjqpi6Y2ZYbHW52Y&callback=initMap"async defer></script>
+<script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdoZN5073jaF1EPmKvjqpi6Y2ZYbHW52Y&loading=async&callback=initMap"></script>
 </html>
 
