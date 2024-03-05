@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}DublinBikes{% endblock %}</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script type="module" src="{{ url_for('static', filename='js/index.js') }}"></script>
-    <script src="https://use.fontawesome.com/releases/v6.2.0/js/all.js"></script>
-    <!-- Add any common CSS or meta tags here -->
+    {% block extra_css %}
+    {% endblock %}
+    
 </head>
 <body>
 
@@ -20,7 +18,6 @@
     
     <nav>
         <ul>
-            <li><a href="/">HOME</a></li>
             <li><a href="/stations">STATIONS</a></li>
             <li><a href="/map">MAP</a></li>
             <li><a href="/faq">FAQ</a></li>
@@ -29,14 +26,7 @@
             <!-- Add any common navigation links here -->
         </ul>
     </nav>
-    <map>
-        {% block map %}
-        {% endblock %}
-    </map>
-    {% block content %}
-    {% endblock %}
     
 </body>
-<script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdoZN5073jaF1EPmKvjqpi6Y2ZYbHW52Y&loading=async&callback=initMap"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdoZN5073jaF1EPmKvjqpi6Y2ZYbHW52Y&callback=initMap"async defer></script>
 </html>
-

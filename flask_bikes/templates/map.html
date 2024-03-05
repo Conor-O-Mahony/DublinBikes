@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}Map - DublinBikes{% endblock %}
+
 
 {% block map %}
-<h1>The map</h1>
+<h1>Find a Bike!</h1>
 <div id="map"></div>
 <script >
     // Define a JavaScript variable and embed the data
@@ -25,6 +25,7 @@
         center: dublin,
         mapId: "DEMO_MAP_ID",
     });
+
 
     const infoWindow = new InfoWindow();
 
