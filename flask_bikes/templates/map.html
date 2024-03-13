@@ -4,12 +4,40 @@
 
 {% block map %}
 <h1>The map</h1>
+<div id="JounreyPlanner" style="background-color: aliceblue; padding: 10px;">
+    <label for="origin">Origin:</label>
+    <input type="text" id="origin" name="origin" size="35"/>
+
+    <label for="destination">Destination:</label>
+    <input type="text" id="destination" name="destination" size="35"/>
+
+    <label for="triptime">When (optional):</label>
+    <input type="datetime-local" id="triptime" name="triptime">
+
+    <button id ="testroutebutton" onclick="handleInputs()">Search</button>
+    <button id ="clearinputs" onclick="clearFields()">Clear Inputs</button>
+</div>
+
 <div id="map"></div>
-<script >
+<script src="../static/js/settings.js" type="text/javascript"></script>
+<script>
     // Define a JavaScript variable and embed the data
     var stations = {{ data|tojson }};
 
     var max = 0;
+
+    const markers = [];
+    var openWithBikes = {};
+    var openWithStands = {};
+    var map;
+    var autocomplete1;
+    var autocomplete2;
+    var startMarker;
+    var endMarker;
+    var polyline;
+    var walk1;
+    var walk2;
+    var cycle;
 
     stations.forEach(station => {if (station.bikes > max) {max = station.bikes}});
 
@@ -17,16 +45,35 @@
 
     const dublin = { lat: 53.3476326, lng: -6.266265 };
   
-    const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+    const { Map, InfoWindow, Polyline } = await google.maps.importLibrary("maps");
     const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+    const { encoding } = await google.maps.importLibrary("geometry");
+    const { Autocomplete } = await google.maps.importLibrary("places");
   
-    const map = new Map(document.getElementById("map"), {
+    map = new Map(document.getElementById("map"), {
         zoom: 15,
         center: dublin,
         mapId: "2ff326f6e5a1075b",
     });
 
     const infoWindow = new InfoWindow();
+
+    const defaultBounds = {
+        north: dublin.lat + 0.1,
+        south: dublin.lat - 0.1,
+        east: dublin.lng + 0.1,
+        west: dublin.lng - 0.1,
+    };
+    const input1 = document.getElementById("origin");
+    const input2 = document.getElementById("destination");
+    const options = {
+        bounds: defaultBounds,
+        componentRestrictions: { country: "IE" },
+        fields: ['place_id', 'name', 'types'],
+        strictBounds: false,
+    };
+    autocomplete1 = new Autocomplete(input1, options);
+    autocomplete2 = new Autocomplete(input2, options);
 
     try {
         stations.forEach(station => {
@@ -38,16 +85,20 @@
                         content: buildContent(station),
             });
 
+
             // Add click listener to the marker
             marker.addListener("click", () => {
                 toggleHighlight(marker, station);
             });
+
+            markers.push(marker);
         });
 
     } catch (error) {
         console.error('Error fetching data', error);
     }
 }
+
 
 function toggleHighlight(markerView, station) {
     // Adds functionality to the marker when clicked
@@ -65,13 +116,24 @@ function buildContent(station) {
   const content = document.createElement("div");
 
   content.classList.add("station");
+  content.id = "station-"+String(station.number)
+
 
   let pin_scale = ((station.bikes)/max)/1.2;
+  let loc = String(station.lat)+String(station.lng)
 
   if (station.status === "OPEN" && station.bikes >0) {
     circleclass = "opencircle";
+    openWithBikes[loc] = "TRUE";
   } else {
     circleclass = "closedcircle";
+    openWithBikes[loc] = "FALSE";
+  }
+
+  if (station.status === "OPEN" && station.stands > 0) {
+    openWithStands[loc] = "TRUE";
+  } else {
+    openWithStands[loc] = "FALSE";
   }
   
   if (station.card === 1) {
@@ -79,6 +141,8 @@ function buildContent(station) {
   } else {
     card="Cash only";
   }
+
+  let number = markers.length;
 
   content.innerHTML = `
     <div class="${circleclass}" style="transform: scale(${0.75 + pin_scale});">
@@ -108,6 +172,182 @@ function buildContent(station) {
     </div>
     `;
   return content;
+}
+
+function findclosest(location, method) {
+    var closestDis = Number.MAX_SAFE_INTEGER;
+    var closest;
+    var lat = location["lat"];
+    var lng = location["lng"];
+    let count = 0
+    let array;
+
+    if (method === "PICKUP") {
+        array = openWithBikes;
+    } else {
+        array = openWithStands;
+    }
+    markers.forEach(marker => {
+        var markerLat = marker.position["lat"];
+        var markerLng = marker.position["lng"];
+        let euclidianDistance = Math.sqrt(Math.pow(lat-markerLat,2) + Math.pow(lng-markerLng,2));
+        let loc = String(markerLat)+String(markerLng)
+
+        if (euclidianDistance < closestDis && array[loc]==="TRUE") {
+            closestDis = euclidianDistance;
+            closest = marker;
+        }
+    });
+    return closest;
+}
+
+function markerJSON(marker) {
+    var markerLat = marker.position["lat"];
+    var markerLng = marker.position["lng"];
+
+    let json = {location:{
+        latLng:{
+          latitude: markerLat,
+          longitude: markerLng}
+        }
+    };
+    return json;
+}
+
+async function fetchClosestRoute(start,end,datetime,mode) {
+     //TODO ADD THE ROUTE TIME TO departureTime
+     try {
+            let request = {
+                origin: start,
+                destination: end,
+                travelMode: mode,
+                departureTime: datetime,// datetime.toISOString(), 
+                computeAlternativeRoutes: false,
+                routeModifiers: {
+                    avoidTolls: false,
+                    avoidHighways: false,
+                    avoidFerries: false
+                },
+                languageCode: "en-US",
+                units: "METRIC"
+            };
+
+            const response = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': environment.GMAPS_API_KEY,
+                    'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.legs'
+                },
+                body: JSON.stringify(request)
+            })
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.log(error);
+            return 0;
+        }
+}
+
+async function drawRoute(start,end,datetime) {
+    var startLat = start["lat"];
+    var startLng = start["lng"];
+    var endLat = end["lat"];
+    var endLng = end["lng"];
+    startMarker = new google.maps.marker.AdvancedMarkerElement({
+                        map,
+                        position: {lat: startLat, lng: startLng},
+                        title: "Start",
+            });
+    endMarker = new google.maps.marker.AdvancedMarkerElement({
+                        map,
+                        position: {lat: endLat, lng: endLng},
+                        title: "Finsh",
+            });
+    var closestToStart = findclosest(start,"PICKUP");
+    var closestToEnd = findclosest(end,"SETDOWN");
+
+    let leg1,leg2,leg3;
+    leg1 = await fetchClosestRoute(markerJSON(startMarker),markerJSON(closestToStart),datetime,"WALK")
+    leg2 = await fetchClosestRoute(markerJSON(closestToStart),markerJSON(closestToEnd),datetime,"BICYCLE")
+    leg3 = await fetchClosestRoute(markerJSON(closestToEnd),markerJSON(endMarker),datetime,"WALK")
+
+    drawPolyline(leg1.routes[0].legs[0].polyline.encodedPolyline, 'red', 1);
+    drawPolyline(leg2.routes[0].legs[0].polyline.encodedPolyline, 'blue', 2);
+    drawPolyline(leg3.routes[0].legs[0].polyline.encodedPolyline, 'red', 3);
+}
+
+function drawPolyline(encodedPolyline, color, segment) { //MAKE THIS BETTER 
+    const path = google.maps.geometry.encoding.decodePath(String(encodedPolyline));
+    if (walk2) {
+        walk1.setMap(null);
+        walk2.setMap(null);
+        cycle.setMap(null);
+        walk1 = null;
+        walk2 = null;
+        walk3 = null;
+    }
+
+    polylineOptions = {
+        path,
+        geodesic: true,
+        strokeColor: color,
+        strokeOpacity: 1.0,
+        strokeWeight: 5,
+    }
+
+    if (segment === 1) {
+        walk1 = new google.maps.Polyline(polylineOptions);
+        walk1.setMap(map);
+    } else if (segment === 2) {
+        cycle = new google.maps.Polyline(polylineOptions);
+        cycle.setMap(map);
+    } else {
+        walk2 = new google.maps.Polyline(polylineOptions);
+        walk2.setMap(map);
+    }
+}
+
+async function geocodeids(id) {
+    try {
+    let url = 'https://maps.googleapis.com/maps/api/geocode';
+    let apikey = environment.GMAPS_API_KEY;
+    const response = await fetch(url + "/json?place_id=" + id + "&key=" + apikey);
+    const data = await response.json();
+    return data.results[0].geometry.location;
+    } catch (error) {
+        console.log(error);
+        return 0;
+    }
+}
+
+async function handleInputs() {
+    let total = markers.length;
+
+    try {
+        try {
+            startMarker.setMap(null);
+            endMarker.setMap(null);
+        } catch {}
+        const origin = autocomplete1.getPlace().place_id;
+        const destination = autocomplete2.getPlace().place_id;
+
+        let origin_coords = await geocodeids(origin);
+        let destination_coords = await geocodeids(destination);
+
+        if (document.getElementById('triptime').value) {
+            let datetime = new Date(document.getElementById('triptime').value);
+            drawRoute(origin_coords,destination_coords,datetime.toISOString());
+        } else {
+            drawRoute(origin_coords,destination_coords,null);
+        }
+    } catch { }
+}
+
+function clearFields() {
+    document.getElementById("origin").value = '';
+    document.getElementById('destination').value = '';
+    document.getElementById('triptime').value = '';
 }
 
 </script>
