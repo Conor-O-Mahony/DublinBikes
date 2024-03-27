@@ -5,8 +5,8 @@
 
 #map {
 
-height: 85%;
-width: 85%;
+height: 100%;
+width: 100%;
 justify-content: center;
 align-items: center;
 }
@@ -21,6 +21,10 @@ html, body {
     background-size: cover;
     background-position:center;
     height: 100%;
+}
+#head {
+  background-color: white;
+  border: 5px solid black;
 }
 
 header {

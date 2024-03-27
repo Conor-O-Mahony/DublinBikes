@@ -9,24 +9,20 @@
     
 </head>
 <body>
-
-    <header>
-        <h1>Bike Locator Dublin</h1>
-        <img src="{{ url_for('static', filename='images/bike.jpeg') }}" alt="Bike Image">
-        <!-- Add any common header elements here -->
-    </header>
-    
-    <nav>
-        <ul>
-            <li><a href="/stations">STATIONS</a></li>
-            <li><a href="/map">MAP</a></li>
-            <li><a href="/faq">FAQ</a></li>
-            <li><a href="/aboutus">ABOUT US</a></li>
-
-            <!-- Add any common navigation links here -->
-        </ul>
-    </nav>
-    
+    <div id="head">
+        <header>
+            <h1>Bike Locator Dublin</h1>
+            <img src="{{ url_for('static', filename='images/bike.jpeg') }}" alt="Bike Image">
+            <!-- Add any common header elements here -->
+        </header>
+        
+        <nav>
+            <ul>
+                <li><a href="/map">ENTER</a></li>
+                <!-- Add any common navigation links here -->
+            </ul>
+        </nav>
+    </div>
 </body>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdoZN5073jaF1EPmKvjqpi6Y2ZYbHW52Y&callback=initMap"async defer></script>
 </html>
