@@ -6,6 +6,7 @@
     <title>{% block title %}DublinBikes{% endblock %}</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
     <script type="module" src="{{ url_for('static', filename='js/index.js') }}"></script>
     <script src="https://use.fontawesome.com/releases/v6.2.0/js/all.js"></script>
     <!-- Add any common CSS or meta tags here -->

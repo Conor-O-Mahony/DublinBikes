@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 
 {% block title %}Map - DublinBikes{% endblock %}
-
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
+{% endblock %}
 {% block map %}
-<div id="JounreyPlanner" style="background-color: aliceblue; padding: 10px;">
+<div id="JourneyPlanner">
     <label for="origin">Origin:</label>
     <input type="text" id="origin" name="origin" size="35"/>
 
