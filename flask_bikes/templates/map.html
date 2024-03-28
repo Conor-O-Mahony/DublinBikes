@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 
 {% block title %}Map - DublinBikes{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
 {% endblock %}
+
 {% block map %}
-<div id="JourneyPlanner">
+
+<h1>The map</h1>
+<div id="JounreyPlanner" style="background-color: aliceblue; padding: 10px;">
     <label for="origin">Origin:</label>
     <input type="text" id="origin" name="origin" size="35"/>
 
@@ -102,15 +106,26 @@
 
 
 function toggleHighlight(markerView, station) {
-    // Adds functionality to the marker when clicked
-            if (markerView.content.classList.contains("highlight")) {
-                markerView.content.classList.remove("highlight");
-                markerView.zIndex = null;
-            } else {
-                markerView.content.classList.add("highlight");
-                markerView.zIndex = 1;
+    // Close highlights for the clicked marker
+    if (markerView.content.classList.contains("highlight")) {
+        markerView.content.classList.remove("highlight");
+        markerView.zIndex = null;
+    } else {
+        // Removes the highlight from all the other markers that are open
+        markers.forEach(marker => {
+            if (marker.content.classList.contains("highlight")) {
+                marker.content.classList.remove("highlight");
+                marker.zIndex = null;
             }
+        });
+
+        // Add the highlight for the clicked marker
+        markerView.content.classList.add("highlight");
+        markerView.zIndex = 1;
+    }
 }
+
+
 
 function buildContent(station) {
   //Builds the html for the marker
@@ -169,6 +184,9 @@ function buildContent(station) {
             <span class="fa-sr-only">Bike Stands</span>
             <span>${station.stands}</span>
         </div>
+        </div>
+        <div>
+            <button class="details-btn">More details</button>
         </div>
     </div>
     `;
