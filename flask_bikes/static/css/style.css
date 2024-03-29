@@ -2,14 +2,15 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    background-color: rgb(211, 211, 246);
+    background-color: white;
     background-size: cover;
     background-position:center;
     height: 100%;
 }
 #head {
-  background-color: rgb(211, 211, 246);
+  background-color: #f2f2f2;
   border: 5px solid black;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
 header {
@@ -19,36 +20,49 @@ header {
     justify-content: center;
 }
 header img {
-    height: 5em; /* Set the height of the image to match the font size */
+    height: 5em;
     margin-left: 20px; 
 }
 h1 {
     font-weight: 500;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
     font-size: 50px;
 }
 
 nav {
     text-align: center;
+    padding: 10px 0;
 }
 
 nav ul {
-    line-height: 10px;
+    
+    padding: 0; 
+    list-style: none;
 }
 
 nav ul li {
-    display: inline;
-    margin-right: 5px;
+    display: inline-block;
+    margin-right: 10px; 
 }
 
 nav ul li a {
     text-decoration: none;
-    color: #333;
-    padding: 5px 10px;
-    border: 1px solid black;
-    border-radius: 5px;
+    color: black;
+    font-weight: bold;
+    padding: 10px 15px; 
+    border: 2px solid black;
+    border-radius: 10px; 
+    transition: all 0.3s ease; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
 }
 
-nav ul li a:hover {
+nav ul li a:hover, nav ul li a:focus {
     background-color: white;
+    color: black;
+    border-color: black; 
+}
+
+nav ul li:hover {
+    transform: translateY(-2px); 
+    transition: transform 0.2s ease-out;
 }
