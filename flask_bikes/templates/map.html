@@ -43,6 +43,9 @@
     var walk1;
     var walk2;
     var cycle;
+    var walk1Window;
+    var cycleWindow;
+    var walk2Window
 
     stations.forEach(station => {if (station.bikes > max) {max = station.bikes}});
 
@@ -60,8 +63,6 @@
         center: dublin,
         mapId: "2ff326f6e5a1075b",
     });
-
-    const infoWindow = new InfoWindow();
 
     const defaultBounds = {
         north: dublin.lat + 0.1,
@@ -240,7 +241,7 @@ async function fetchClosestRoute(start,end,datetime,mode) {
                 origin: start,
                 destination: end,
                 travelMode: mode,
-                departureTime: datetime,// datetime.toISOString(), 
+                departureTime: datetime,
                 computeAlternativeRoutes: false,
                 routeModifiers: {
                     avoidTolls: false,
@@ -287,13 +288,51 @@ async function drawRoute(start,end,datetime) {
     var closestToEnd = findclosest(end,"SETDOWN");
 
     let leg1,leg2,leg3;
-    leg1 = await fetchClosestRoute(markerJSON(startMarker),markerJSON(closestToStart),datetime,"WALK")
-    leg2 = await fetchClosestRoute(markerJSON(closestToStart),markerJSON(closestToEnd),datetime,"BICYCLE")
-    leg3 = await fetchClosestRoute(markerJSON(closestToEnd),markerJSON(endMarker),datetime,"WALK")
+    leg1 = await fetchClosestRoute(markerJSON(startMarker),markerJSON(closestToStart),datetime,"WALK");
+    leg2 = await fetchClosestRoute(markerJSON(closestToStart),markerJSON(closestToEnd),datetime,"BICYCLE");
+    leg3 = await fetchClosestRoute(markerJSON(closestToEnd),markerJSON(endMarker),datetime,"WALK");
 
-    drawPolyline(leg1.routes[0].legs[0].polyline.encodedPolyline, 'red', 1);
+    //toalDuration = Math.round((parseInt(leg1.routes[0].duration.slice(0,-1)) + parseInt(leg2.routes[0].duration.slice(0,-1)) + parseInt(leg3.routes[0].duration.slice(0,-1)))/60);
+    //totalDistance = Math.round((leg1.routes[0].distanceMeters + leg2.routes[0].distanceMeters + leg3.routes[0].distanceMeters)/100)/10;
+
+    walk1duration = Math.round((parseInt(leg1.routes[0].duration.slice(0,-1)))/60);
+    walk1distance = Math.round((leg1.routes[0].distanceMeters)/100)/10;
+
+    cycleduration = Math.round((parseInt(leg2.routes[0].duration.slice(0,-1)))/60);
+    cycledistance = Math.round((leg2.routes[0].distanceMeters)/100)/10;
+
+    walk2duration = Math.round((parseInt(leg3.routes[0].duration.slice(0,-1)))/60);
+    walk2distance = Math.round((leg3.routes[0].distanceMeters)/100)/10;
+
+    walk1Window = new google.maps.InfoWindow({ //MAKE INFO WINDOW INVISIBLE ON SCROLL OUT
+                        content: "Walk " + walk1distance + "km<br>" + walk1duration + " minutes",
+                        maxWidth: 200
+                    });
+    cycleWindow = new google.maps.InfoWindow({
+                        content: "Cycle " + cycledistance + "km<br>" + cycleduration + " minutes",
+                        maxWidth: 200
+                    });
+    walk2Window = new google.maps.InfoWindow({
+                        content: "Walk " + walk2distance + "km<br>" + walk2duration + " minutes",
+                        maxWidth: 200
+                    });
+
+    walk1Window.open({
+      anchor: startMarker,
+      map,
+    });
+    cycleWindow.open({
+      anchor: closestToStart,
+      map,
+    });
+    walk2Window.open({
+      anchor: closestToEnd,
+      map,
+    });
+
+    drawPolyline(leg1.routes[0].legs[0].polyline.encodedPolyline, 'blue', 1);
     drawPolyline(leg2.routes[0].legs[0].polyline.encodedPolyline, 'blue', 2);
-    drawPolyline(leg3.routes[0].legs[0].polyline.encodedPolyline, 'red', 3);
+    drawPolyline(leg3.routes[0].legs[0].polyline.encodedPolyline, 'blue', 3);
 }
 
 function drawPolyline(encodedPolyline, color, segment) { //MAKE THIS BETTER 
@@ -307,7 +346,25 @@ function drawPolyline(encodedPolyline, color, segment) { //MAKE THIS BETTER
         walk3 = null;
     }
 
-    polylineOptions = {
+    var lineSymbol = {
+              path: 'M0 0 T 0 0',
+              strokeOpacity: 1,
+              scale: 9
+            };
+
+    walkPolylineOptions = {
+        path,
+        geodesic: true,
+        strokeColor: color,
+        strokeOpacity: 0,
+        icons: [{
+                icon: lineSymbol,
+                offset: '0',
+                repeat: '20px'
+              }],
+    }
+
+    cyclePolylineOptions = {
         path,
         geodesic: true,
         strokeColor: color,
@@ -315,14 +372,16 @@ function drawPolyline(encodedPolyline, color, segment) { //MAKE THIS BETTER
         strokeWeight: 5,
     }
 
+    
+
     if (segment === 1) {
-        walk1 = new google.maps.Polyline(polylineOptions);
+        walk1 = new google.maps.Polyline(walkPolylineOptions);
         walk1.setMap(map);
     } else if (segment === 2) {
-        cycle = new google.maps.Polyline(polylineOptions);
+        cycle = new google.maps.Polyline(cyclePolylineOptions);
         cycle.setMap(map);
     } else {
-        walk2 = new google.maps.Polyline(polylineOptions);
+        walk2 = new google.maps.Polyline(walkPolylineOptions);
         walk2.setMap(map);
     }
 }
@@ -344,6 +403,9 @@ async function handleInputs() {
     let total = markers.length;
 
     try {
+        try {infoWindow.close()
+        } catch{}
+
         try {
             startMarker.setMap(null);
             endMarker.setMap(null);
