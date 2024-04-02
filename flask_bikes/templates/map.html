@@ -45,7 +45,14 @@
     var cycle;
     var walk1Window;
     var cycleWindow;
-    var walk2Window
+    var walk2Window;
+    var legsset = false;
+    var walk1Window;
+    var cycleWindow;
+    var walk2Window;
+    var leg1Pos;
+    var leg2Pos;
+    var leg3Pos;
 
     stations.forEach(station => {if (station.bikes > max) {max = station.bikes}});
 
@@ -292,7 +299,7 @@ async function drawRoute(start,end,datetime) {
     leg2 = await fetchClosestRoute(markerJSON(closestToStart),markerJSON(closestToEnd),datetime,"BICYCLE");
     leg3 = await fetchClosestRoute(markerJSON(closestToEnd),markerJSON(endMarker),datetime,"WALK");
 
-    //toalDuration = Math.round((parseInt(leg1.routes[0].duration.slice(0,-1)) + parseInt(leg2.routes[0].duration.slice(0,-1)) + parseInt(leg3.routes[0].duration.slice(0,-1)))/60);
+    //totalDuration = Math.round((parseInt(leg1.routes[0].duration.slice(0,-1)) + parseInt(leg2.routes[0].duration.slice(0,-1)) + parseInt(leg3.routes[0].duration.slice(0,-1)))/60);
     //totalDistance = Math.round((leg1.routes[0].distanceMeters + leg2.routes[0].distanceMeters + leg3.routes[0].distanceMeters)/100)/10;
 
     walk1duration = Math.round((parseInt(leg1.routes[0].duration.slice(0,-1)))/60);
@@ -304,29 +311,54 @@ async function drawRoute(start,end,datetime) {
     walk2duration = Math.round((parseInt(leg3.routes[0].duration.slice(0,-1)))/60);
     walk2distance = Math.round((leg3.routes[0].distanceMeters)/100)/10;
 
+    if (walk1Window) {
+        walk1Window.close();
+        cycleWindow.close();
+        walk2Window.close();
+        walk1Window = null;
+        cycleWindow = null;
+        walk2Window = null;
+        leg1Pos = null;
+        leg2Pos = null;
+        leg3Pos = null;
+    }
+
     walk1Window = new google.maps.InfoWindow({ //MAKE INFO WINDOW INVISIBLE ON SCROLL OUT
-                        content: "Walk " + walk1distance + "km<br>" + walk1duration + " minutes",
+                        content: `<i class="fa-solid fa-person-walking" title="Walk"></i> <b>` + walk1duration + " min</b><br>" + walk1distance + " km",
                         maxWidth: 200
                     });
     cycleWindow = new google.maps.InfoWindow({
-                        content: "Cycle " + cycledistance + "km<br>" + cycleduration + " minutes",
+                        content: `<i class="fa-solid fa-person-biking" title="Cycle"></i> <b>` + cycleduration + " min</b><br>" + cycledistance + " km",
                         maxWidth: 200
                     });
     walk2Window = new google.maps.InfoWindow({
-                        content: "Walk " + walk2distance + "km<br>" + walk2duration + " minutes",
+                        content: `<i class="fa-solid fa-person-walking" title="Walk"></i> <b>` + walk2duration + " min</b><br>" + walk2distance + " km",
                         maxWidth: 200
                     });
 
+    leg1Pos = new google.maps.marker.AdvancedMarkerElement({
+        map: null,
+        position: distanceAlongPath(leg1, 0.5),
+    });
+    leg2Pos = new google.maps.marker.AdvancedMarkerElement({
+        map: null,
+        position: distanceAlongPath(leg2, 0.5),
+    });
+    leg3Pos = new google.maps.marker.AdvancedMarkerElement({
+        map: null,
+        position: distanceAlongPath(leg3, 0.5),
+    });
+
     walk1Window.open({
-      anchor: startMarker,
+      anchor: leg1Pos,
       map,
     });
     cycleWindow.open({
-      anchor: closestToStart,
+      anchor: leg2Pos,
       map,
     });
     walk2Window.open({
-      anchor: closestToEnd,
+      anchor: leg3Pos,
       map,
     });
 
@@ -334,6 +366,31 @@ async function drawRoute(start,end,datetime) {
     drawPolyline(leg2.routes[0].legs[0].polyline.encodedPolyline, 'blue', 2);
     drawPolyline(leg3.routes[0].legs[0].polyline.encodedPolyline, 'blue', 3);
 }
+
+function distanceAlongPath(leg, ratioFromOrigin, where) {
+    var route = leg.routes[0];
+    var totalDistance = route.distanceMeters
+    var tempDistanceSum = 0;
+    var dist = 0;
+
+    distanceFromOrigin = ratioFromOrigin * totalDistance;
+      
+      // we prepare the object 
+      var result = new Object();
+      result.routes = new Array();
+      result.routes[0] = route;
+      for(var i in result.routes[0].legs[0].steps) {
+          start = result.routes[0].legs[0].steps[i].startLocation.latLng
+          end = result.routes[0].legs[0].steps[i].endLocation.latLng
+          startL = new google.maps.LatLng(start.latitude,start.longitude);
+          endL = new google.maps.LatLng(end.latitude,end.longitude);
+          dist = google.maps.geometry.spherical.computeDistanceBetween(startL,endL);
+        tempDistanceSum += dist;
+        if (tempDistanceSum > distanceFromOrigin) {
+            return {lat: start.latitude, lng: start.longitude};
+        } 
+      }
+    }
 
 function drawPolyline(encodedPolyline, color, segment) { //MAKE THIS BETTER 
     const path = google.maps.geometry.encoding.decodePath(String(encodedPolyline));
@@ -371,8 +428,6 @@ function drawPolyline(encodedPolyline, color, segment) { //MAKE THIS BETTER
         strokeOpacity: 1.0,
         strokeWeight: 5,
     }
-
-    
 
     if (segment === 1) {
         walk1 = new google.maps.Polyline(walkPolylineOptions);
