@@ -477,6 +477,10 @@ async function handleInputs() {
         } else {
             drawRoute(origin_coords,destination_coords,null);
         }
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
     } catch { }
 }
 
