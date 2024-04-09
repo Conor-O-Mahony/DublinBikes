@@ -3,7 +3,12 @@ from dbManager import engine
 from sqlalchemy import text
 import requests
 from datetime import datetime, timezone
-import pytz
+
+from zoneinfo import ZoneInfo  
+
+# conversion to Dublin time
+utc_time = datetime.now(timezone.utc)
+local_time = utc_time.astimezone(ZoneInfo("Europe/Dublin"))
 
 
 
@@ -36,7 +41,7 @@ def forecast():
         desc = current_data['weather'][0]['description']
         wind = current_data['wind']['speed']
         rain = current_data.get('rain', {}).get('1h', 0)
-        time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")  # UTC now with timezone support
+        time = local_time.strftime("%Y-%m-%d %H:%M:%S")  # UTC now with timezone support
     else:
         return render_template('forecast.html', error="Failed to fetch current weather data.")
 
