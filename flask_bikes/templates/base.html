@@ -9,15 +9,12 @@
     {% block extra_css %}{% endblock %}
     <script type="module" src="{{ url_for('static', filename='js/index.js') }}"></script>
     <script src="https://use.fontawesome.com/releases/v6.2.0/js/all.js"></script>
-    <!-- Add any common CSS or meta tags here -->
 </head>
 <body>
-
     <div id="head">
         <header>
             <h1>Bike Locator Dublin</h1>
             <img src="{{ url_for('static', filename='images/bike.jpeg') }}" alt="Bike Image">
-            <!-- Add any common header elements here -->
         </header>
         
         <nav>
@@ -25,10 +22,11 @@
                 <li><a href="/map">FIND A BIKE</a></li>
                 <li><a href="/faq">FAQ</a></li>
                 <li><a href="/aboutus">ABOUT US</a></li>
-                <!-- Add any common navigation links here -->
+                <li id="weatherIcon"><button onclick="openForecast()"></button></li>
             </ul>
         </nav>
     </div>
+
     <map>
         {% block map %}
         {% endblock %}
@@ -37,6 +35,7 @@
     {% endblock %}
     
 </body>
+<script src="../static/js/iconLoad.js"></script>
 <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdoZN5073jaF1EPmKvjqpi6Y2ZYbHW52Y&loading=async&libraries=places&callback=initMap"></script>
 </html>
 

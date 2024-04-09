@@ -6,7 +6,7 @@ body {
     color: #333;
 }
 .container {
-    max-width: 600px;
+    max-width: 700px;
     margin: 20px auto;
     padding: 20px;
     background-color: #fff;
@@ -27,6 +27,23 @@ p {
     border-radius: 8px;
 }
 
+#current-weather {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #50c17d;
+    color: #ffffff;
+    padding: 10px;
+    margin: 20px 0;
+    border-radius: 8px;
+}
+
+#current-icon img {
+    width: 70px;
+    height: auto;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -45,5 +62,8 @@ th {
 }
 
 tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #04aa6d81;
+}
+tr:nth-child(odd) {
+    background-color: #04aa6d2e;
 }

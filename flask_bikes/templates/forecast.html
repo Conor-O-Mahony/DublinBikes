@@ -12,6 +12,7 @@
         {% if error %}
             <p>Error: {{ error }}</p>
         {% else %}
+        <div id="current-weather">
             <div class="weather-detail">
                 <p><strong>Temperature:</strong> {{ temp }}°C</p>
                 <p><strong>Description:</strong> {{ desc }}</p>
@@ -19,15 +20,21 @@
                 <p><strong>Rain (last hour):</strong> {{ rain }} mm</p>
                 <p><strong>Time:</strong> {{ time }}</p>
             </div>
+            <div id="current-icon">
+                <img src="http://openweathermap.org/img/wn/{{ icon }}.png" alt="Weather Icon">
+            </div>
+        </div>
 
             <h2>Hourly Forecast</h2>
             <table>
                 <thead>
                     <tr>
                         <th>Time</th>
-                        <th>Temperature</th>
+                        <th>Temperature (°C)</th>
                         <th>Description</th>
-                        <th>Wind Speed</th>
+                        <th>Wind Speed (m/s)</th>
+                        <th>Rain (mm)</th>
+                        <th>Icon</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,6 +44,14 @@
                         <td>{{ forecast.main.temp }} °C</td>
                         <td>{{ forecast.weather[0].description }}</td>
                         <td>{{ forecast.wind.speed }} m/s</td>
+                        <td>
+                            {% if forecast.rain %}
+                                {{ forecast.rain['3h']|default('0', true) }} mm
+                            {% else %}
+                                0 mm
+                            {% endif %}
+                        </td>
+                        <td><img src="http://openweathermap.org/img/wn/{{ forecast.weather[0].icon }}.png" alt="Weather Icon"></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -51,6 +66,8 @@
                         <th>Temperature (°C)</th>
                         <th>Description</th>
                         <th>Wind Speed (m/s)</th>
+                        <th>Rain (mm)</th>
+                        <th>Icon</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,6 +77,14 @@
                         <td>{{ forecast.main.temp }}°C</td>
                         <td>{{ forecast.weather[0].description }}</td>
                         <td>{{ forecast.wind.speed }} m/s</td>
+                        <td>
+                            {% if forecast.rain %}
+                                {{ forecast.rain['3h']|default('0', true) }} mm
+                            {% else %}
+                                0 mm
+                            {% endif %}
+                        </td>
+                        <td><img src="http://openweathermap.org/img/wn/{{ forecast.weather[0].icon }}.png" alt="Weather Icon"></td>
                     </tr>
                     {% endfor %}
                 </tbody>

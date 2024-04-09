@@ -27,11 +27,12 @@ def aboutus():
 @app.route('/forecast')
 def forecast():
     # Foreacst placeholders and urls
-    city = "Dublin"
+    city = "Dublin,IE"
     api_key = "dd05f29b3c673dec7f4a9df4f8cce8fd"
     units = "metric"
     current_weather_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units={units}"
     forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units={units}"
+    print(local_time)
 
     # Fetching the current weather info
     current_response = requests.get(current_weather_url)
@@ -42,6 +43,7 @@ def forecast():
         wind = current_data['wind']['speed']
         rain = current_data.get('rain', {}).get('1h', 0)
         time = local_time.strftime("%Y-%m-%d %H:%M:%S")  # UTC now with timezone support
+        icon = current_data['weather'][0]['icon']
     else:
         return render_template('forecast.html', error="Failed to fetch current weather data.")
 
@@ -71,6 +73,7 @@ def forecast():
                            wind=wind, 
                            rain=rain, 
                            time=time, 
+                           icon=icon,
                            hourly_forecasts=forecasts[:8], # Number of rows to show
                            daily_forecasts=daily_forecasts)
 
