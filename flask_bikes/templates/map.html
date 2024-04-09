@@ -8,6 +8,7 @@
 
 {% block map %}
 <h2>Plan A Journey</h2>
+<button onclick="openForecast()">Weather icon</button>
 <div id="JourneyPlanner">
     <label for="origin">Origin:</label>
     <input type="text" id="origin" name="origin" size="35"/>
@@ -24,6 +25,7 @@
 
 <h2>View Map</h2>
 <div id="map"></div>
+<script src="../static/js/forecast.js" type="text/javascript"></script>
 <script src="../static/js/settings.js" type="text/javascript"></script>
 <script>
     // Define a JavaScript variable and embed the data

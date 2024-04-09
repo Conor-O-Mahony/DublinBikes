@@ -13,9 +13,9 @@ def aboutus():
     return render_template('aboutus.html')
 
 
-@app.route('/stations')
+@app.route('/forecast')
 def station():
-    return render_template('stations.html')
+    return render_template('/forecast.html')
 
 @app.route('/map')
 def stations():
