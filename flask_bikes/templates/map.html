@@ -6,6 +6,10 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
 {% endblock %}
 
+{% block predictions %}
+
+{% endblock %}
+
 {% block map %}
 <div id="JourneyBox">
     <h2>Plan A Journey</h2>
@@ -30,6 +34,53 @@
 </div>
 
 <div id="map"></div>
+    <button id ="testroutebutton" onclick="handleInputs()">Search</button>
+    <button id ="clearinputs" onclick="clearFields()">Clear Inputs</button>
+    <button class="collapse-btn" onclick="toggleSidebar()">☰ Toggle Sidebar</button>
+</div>
+
+<!-- Predcitions section -->
+
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-content">
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <td>Closest station for bikes:</td>
+                        <td>Available bikes</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="srcStation">Ex: Grand Canal Dock</td>
+                        <td id="srcAvailability">Ex: 12</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table>
+                <thead>
+                    <tr>
+                        <td>Closest station for stands:</td>
+                        <td>Available stands</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="destStation">Ex: Trinity</td>
+                        <td id="destAvailability">Ex: 8</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Map display -->
+
+<h2>View Map</h2>
+<div id="map" class="map"></div>
+<script src="../static/js/sidebar.js" type="text/javascript"></script>
 <script src="../static/js/forecast.js" type="text/javascript"></script>
 <script src="../static/js/settings.js" type="text/javascript"></script>
 <script>

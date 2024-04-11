@@ -1,3 +1,4 @@
 db.env
 settings.js
 .DS_Store
+*.pkl
