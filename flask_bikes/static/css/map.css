@@ -128,14 +128,6 @@ h2 {
   }
 }
 
-#MapBox {
-  padding: 10px;
-  background-color: #50c17d;
-  border: 1px solid black;
-  border-radius: 8px;
-  margin: 20px auto;
-  width: 95%;
-}
 .station {
     align-items: center;
     background-color: #FFFFFF;
