@@ -268,3 +268,83 @@ h2 {
     text-decoration: none;
     display: inline-block;
   }
+
+  /* predictions section */
+
+  /* Tables */
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #04AA6D;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #04aa6d81;
+}
+tr:nth-child(odd) {
+    background-color: #45b28a;
+}
+
+  /* Sidebar */
+
+#sidebar {
+  height: 100%;
+  width: 0; 
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  padding-top: 20px;
+  transition: width 0.5s;
+  color: white;
+}
+
+.sidebar-content {
+  padding: 10px;
+  opacity: 0; 
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.map {
+  height: 100%;
+  overflow: hidden;
+  margin-left: 0; 
+  transition: margin-left 0.5s;
+}
+
+.collapse-btn {
+  background-color: #444;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.collapse-btn:hover {
+  background-color: #555;
+}
+
+.collapsed #sidebar {
+  width: 0;
+}
+
+.collapsed #map {
+  margin-left: 0;
+}
