@@ -7,15 +7,24 @@
 
 {% block content %}
     <div class="welcome-container">
+        <h2>Who We Are</h2>
         <div class="welcome-message">
             <p>Welcome to Bike Locator Dublin, your go-to destination for convenient and efficient bike navigation in Dublin city. Whether you're a seasoned cyclist or a casual rider, our platform offers an intuitive solution to explore the city's bike-friendly routes, locate nearby bike stations, and plan your cycling journey with ease. With our user-friendly interface and comprehensive database of bike stations and routes, finding the perfect bike for your urban adventures has never been simpler. Join us in promoting sustainable transportation and discover the joy of cycling through the vibrant streets of Dublin. Let's pedal towards a greener, healthier future together!</p>
-        </div>
-            <!--image source - https://greenwaysireland.org/grand-canal-greenway/-->
-            <img src="{{ url_for('static', filename='images/welcome1.jpeg') }}" alt="Image 1">
-        </div>
-        <div>
+            <h2>Meet The Team</h2>
             <!--We can add whatever we want here, not important now but maybe a message on who we are or something, meet the team etc.-->
-            <p></p>
+        <div class="team-container">
+            <div class="team-member" id="conor">
+                <h3>Conor</h3>
+                <p>Description of Conor here...</p>
+            </div>
+            <div class="team-member" id="dillon">
+                <h3>Dillon</h3>
+                <p>Dillon comes from a sports background with a strong interest in staying active and healthy. From Dublin himself, he knows the beauty the county can offer!</p>
+            </div>
+            <div class="team-member" id="eneko">
+                <h3>Eneko</h3>
+                <p>Description of Eneko here...</p>
+            </div>
         </div>
     </div>
 
