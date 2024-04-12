@@ -1,22 +1,18 @@
 function updateSidebarContent(station) {
-    // Update the station number
+
     var stationNumber = document.getElementById("stationNumber");
     stationNumber.textContent = "Station number: " + station.number;
-
-    // Optionally, reset the date input or set to default value
     var dateInput = document.getElementById("dateInput");
-    dateInput.value = ""; // Clear previous date or set to current date as needed
+    dateInput.value = ""; 
 
-    // Reset or hide the data plot image
+
     var plotImage = document.getElementById("plotImage");
     plotImage.style.display = "none";
     plotImage.src = "";
 
-    // Reset/hide plot filters if necessary
     var plotFilters = document.getElementById("plotFilters");
     plotFilters.style.display = "none";
 
-    // Ensure the sidebar is visible if it was closed
     var sidebar = document.getElementById("sidebar");
     var map = document.getElementById("map");
     var content = sidebar.querySelector('.sidebar-content');
@@ -28,7 +24,6 @@ function updateSidebarContent(station) {
     }
 }
 
-// Function to toggle the visibility of the sidebar
 function toggleSidebar() {
     var sidebar = document.getElementById("sidebar");
     var map = document.getElementById("map");
