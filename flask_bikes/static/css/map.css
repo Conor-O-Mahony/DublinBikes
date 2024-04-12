@@ -304,48 +304,51 @@ tr:nth-child(odd) {
     background-color: #45b28a;
 }
 
-  /* Sidebar */
-
+/* Sidebar */
 #sidebar {
   height: 100%;
-  width: 0; 
+  width: 0;
   position: fixed;
-  z-index: 1;
+  z-index: 1000; /* Increased z-index for higher priority on the page */
   top: 0;
   left: 0;
-  background-color: #111;
+  background-color: #026642; /* Slightly lighter black for soft aesthetics */
   overflow-x: hidden;
   padding-top: 20px;
-  transition: width 0.5s;
-  color: white;
+  transition: width 0.5s ease-in-out;
+  color: #fff;
 }
 
 .sidebar-content {
-  padding: 10px;
-  opacity: 0; 
-  transition: opacity 0.5s;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
   pointer-events: none;
 }
 
 .map {
   height: 100%;
   overflow: hidden;
-  margin-left: 0; 
-  transition: margin-left 0.5s;
+  margin-left: 0;
+  transition: margin-left 0.5s ease-in-out;
 }
 
-.collapse-btn {
-  background-color: #444;
+.collapse-btn, #closeSidebar {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #04AA6D;
   border: none;
   color: white;
   padding: 10px 15px;
+  margin: 5px;
   text-align: center;
   font-size: 16px;
   cursor: pointer;
+  border-radius: 4px; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
 }
 
-.collapse-btn:hover {
-  background-color: #555;
+.collapse-btn:hover, #closeSidebar:hover {
+  background-color: #9ab5ab; 
 }
 
 .collapsed #sidebar {
@@ -354,4 +357,13 @@ tr:nth-child(odd) {
 
 .collapsed #map {
   margin-left: 0;
+}
+
+#closeSidebar {
+  background-color: #f44336; /* Bright red for clear action */
+  margin-right: 10px;
+}
+
+#closeSidebar:hover {
+  background-color: #d32f2f; /* Darker red on hover */
 }

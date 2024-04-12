@@ -25,7 +25,6 @@
 
         <button id ="testroutebutton" onclick="handleInputs()">Search</button>
         <button id ="clearinputs" onclick="clearFields()">Clear Inputs</button>
-        <button class="collapse-btn" onclick="toggleSidebar()">☰ Toggle Sidebar</button>
     </div>
 </div>
 
@@ -33,39 +32,34 @@
 <!-- Predictions section -->
 
 <div id="sidebar" class="sidebar">
+    <button type="button" onclick="toggleSidebar()" id="closeSidebar" style="float: right; margin-bottom: 10px;">Close</button>
     <div class="sidebar-content">
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <td>Closest station for bikes:</td>
-                        <td>Available bikes</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td id="srcStation">Ex: Grand Canal Dock</td>
-                        <td id="srcAvailability">Ex: 12</td>
-                    </tr>
-                </tbody>
-            </table>
-            <table>
-                <thead>
-                    <tr>
-                        <td>Closest station for stands:</td>
-                        <td>Available stands</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td id="destStation">Ex: Trinity</td>
-                        <td id="destAvailability">Ex: 8</td>
-                    </tr>
-                </tbody>
-            </table>
+        <form id="dataForm">
+
+            <div>
+                <h3 id="stationNumber">Station number: </h3>
+            </div>
+
+            <label for="dateInput">Choose a date:</label>
+            <input type="date" id="dateInput" name="dateInput" style="margin-top: 10px; padding: 8px; width: calc(100% - 16px); border-radius: 4px; border: 1px solid #ccc;">
+
+            <button type="button" id="showHistoricalData" class="collapse-btn" style="margin-top: 20px;">Show Historical Data</button>
+            <button type="button" id="showPredictiveData" class="collapse-btn" style="margin-top: 10px;">Show Predictive Data</button>
+        </form>
+
+        <div id="plotFilters" style="display:none; margin-top: 20px;">
+            <button type="button" onclick="filterData('hour')" class="collapse-btn">Hour</button>
+            <button type="button" onclick="filterData('day')" class="collapse-btn">Day</button>
+            <button type="button" onclick="filterData('week')" class="collapse-btn">Week</button>
+            <button type="button" onclick="filterData('month')" class="collapse-btn">Month</button>
+        </div>
+
+        <div id="dataPlot" style="margin-top: 20px;">
+            <img src="" alt="Data Plot" id="plotImage" style="display:none; width: 100%;">
         </div>
     </div>
 </div>
+
 
 <!-- Map display -->
 
@@ -145,6 +139,10 @@
                         title: station.name,
                         content: buildContent(station),
             });
+            marker.addListener("click", () => {
+                updateSidebarContent(station);
+            });
+
 
 
             // Add click listener to the marker
@@ -184,67 +182,49 @@ function toggleHighlight(markerView, station) {
 
 
 function buildContent(station) {
-  //Builds the html for the marker
-  const content = document.createElement("div");
+    const content = document.createElement("div");
+    content.classList.add("station");
+    content.id = "station-" + String(station.number);
 
-  content.classList.add("station");
-  content.id = "station-"+String(station.number)
+    let pin_scale = ((station.bikes) / max) / 1.2;
+    let circleclass = station.status === "OPEN" && station.bikes > 0 ? "opencircle" : "closedcircle";
 
+    let cardText = station.card === 1 ? "Takes card payment" : "Cash only";
 
-  let pin_scale = ((station.bikes)/max)/1.2;
-  let loc = String(station.lat)+String(station.lng)
-
-  if (station.status === "OPEN" && station.bikes >0) {
-    circleclass = "opencircle";
-    openWithBikes[loc] = "TRUE";
-  } else {
-    circleclass = "closedcircle";
-    openWithBikes[loc] = "FALSE";
-  }
-
-  if (station.status === "OPEN" && station.stands > 0) {
-    openWithStands[loc] = "TRUE";
-  } else {
-    openWithStands[loc] = "FALSE";
-  }
-  
-  if (station.card === 1) {
-    card="Takes card payment"; 
-  } else {
-    card="Cash only";
-  }
-
-  let number = markers.length;
-
-  content.innerHTML = `
-    <div class="${circleclass}" style="transform: scale(${0.75 + pin_scale});">
-        ${station.bikes}
-    </div>
-    <div class="details">
-        <div class="address">${station.address}</div>
-        <div class="status">${station.status}</div>
-        <div class="card">${card}</div>
-        <div class="features">
-        <div>
-            <i aria-hidden="true" class="fa-solid fa-bicycle bike" title="MechanicalBikes"></i>
-            <span class="fa-sr-only">Mechanical Bikes</span>
-            <span>${station.mechbikes}</span>
+    content.innerHTML = `
+        <div class="${circleclass}" style="transform: scale(${0.75 + pin_scale});">
+            ${station.bikes}
         </div>
-        <div>
-            <i aria-hidden="true" class="fa-solid fa-battery-full battery" title="ElectricalBikes"></i>
-            <span class="fa-sr-only">Electric Bikes</span>
-            <span>${station.elecbikes}</span>
+        <div class="details">
+            <div class="number">Station: ${station.number}</div>
+            <div class="address">${station.address}</div>
+            <div class="status">${station.status}</div>
+            <div class="card">${cardText}</div>
+            <div class="features">
+                <div>
+                    <i aria-hidden="true" class="fa-solid fa-bicycle bike" title="Mechanical Bikes"></i>
+                    <span class="fa-sr-only">Mechanical Bikes</span>
+                    <span>${station.mechbikes}</span>
+                </div>
+                <div>
+                    <i aria-hidden="true" class="fa-solid fa-battery-full battery" title="Electrical Bikes"></i>
+                    <span class="fa-sr-only">Electric Bikes</span>
+                    <span>${station.elecbikes}</span>
+                </div>
+                <div>
+                    <i aria-hidden="true" class="fa-solid fa-square-parking parking" title="Bike Stands"></i>
+                    <span class="fa-sr-only">Bike Stands</span>
+                    <span>${station.stands}</span>
+                </div>
+            </div>
+            <button class="collapse-btn" onclick="event.stopPropagation(); toggleSidebar(${station.number})">☰ View details</button>
+
         </div>
-        <div>
-            <i aria-hidden="true" class="fa-solid fa-square-parking parking" title="BikeStands"></i>
-            <span class="fa-sr-only">Bike Stands</span>
-            <span>${station.stands}</span>
-        </div>
-        </div>
-    </div>
     `;
-  return content;
+
+    return content;
 }
+
 
 function findclosest(location, method) {
     var closestDis = Number.MAX_SAFE_INTEGER;
