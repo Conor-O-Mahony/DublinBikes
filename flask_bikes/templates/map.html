@@ -188,8 +188,31 @@ function buildContent(station) {
 
     let pin_scale = ((station.bikes) / max) / 1.2;
     let circleclass = station.status === "OPEN" && station.bikes > 0 ? "opencircle" : "closedcircle";
+    let loc = String(station.lat)+String(station.lng)
 
     let cardText = station.card === 1 ? "Takes card payment" : "Cash only";
+
+    if (station.status === "OPEN" && station.bikes >0) {
+    circleclass = "opencircle";
+    openWithBikes[loc] = "TRUE";
+    } else {
+        circleclass = "closedcircle";
+        openWithBikes[loc] = "FALSE";
+    }
+
+    if (station.status === "OPEN" && station.stands > 0) {
+        openWithStands[loc] = "TRUE";
+    } else {
+        openWithStands[loc] = "FALSE";
+    }
+
+    if (station.card === 1) {
+        card="Takes card payment"; 
+    } else {
+        card="Cash only";
+    }
+
+  let number = markers.length;
 
     content.innerHTML = `
         <div class="${circleclass}" style="transform: scale(${0.75 + pin_scale});">
