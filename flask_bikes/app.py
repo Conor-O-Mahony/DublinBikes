@@ -10,73 +10,11 @@ from zoneinfo import ZoneInfo
 utc_time = datetime.now(timezone.utc)
 local_time = utc_time.astimezone(ZoneInfo("Europe/Dublin"))
 
-import pickle
-import pandas as pd
-import numpy as np
-
-
-# de-serialize model.pkl file into an object called model using pickle
-from flask import Flask, jsonify, request
-import os
-import pickle
 
 
 
 
 app = Flask(__name__)
-
-
-from flask import Flask, request, jsonify
-import pickle
-
-
-# Load the pre-trained model
-model_path = '/Users/okellyeneko/Documents/GitHub/DublinBikes/Models/pickle_files/bikes_1.pkl'  # Update with your actual model path
-with open(model_path, 'rb') as handle:
-    model = pickle.load(handle)
-
-@app.route("/predict", methods=['GET'])
-def predict():
-    # Retrieve feature values from the query string
-    try:
-        temperature = request.args.get('temperature', default=0, type=float)
-        wind_speed = request.args.get('wind_speed', default=0, type=float)
-        rainfall = request.args.get('rainfall', default=0, type=float)
-        day_of_week = request.args.get('day_of_week', default=0, type=int)
-        hour = request.args.get('hour', default=0, type=int)
-        minute = request.args.get('minute', default=0, type=int)
-        broken_clouds = request.args.get('broken_clouds', default=0, type=int)
-        clear_sky = request.args.get('clear_sky', default=0, type=int)
-        few_clouds = request.args.get('few_clouds', default=0, type=int)
-        fog = request.args.get('fog', default=0, type=int)
-        haze = request.args.get('haze', default=0, type=int)
-        heavy_intensity_rain = request.args.get('heavy_intensity_rain', default=0, type=int)
-        light_rain = request.args.get('light_rain', default=0, type=int)
-        mist = request.args.get('mist', default=0, type=int)
-        moderate_rain = request.args.get('moderate_rain', default=0, type=int)
-        overcast_clouds = request.args.get('overcast_clouds', default=0, type=int)
-        scattered_clouds = request.args.get('scattered_clouds', default=0, type=int)
-        thunderstorm_with_light_rain = request.args.get('thunderstorm_with_light_rain', default=0, type=int)
-        
-        # Assemble the features in the same order as the training set
-        features = np.array([[
-            temperature, wind_speed, rainfall, day_of_week, hour, minute,
-            broken_clouds, clear_sky, few_clouds, fog, haze, heavy_intensity_rain,
-            light_rain, mist, moderate_rain, overcast_clouds, scattered_clouds,thunderstorm_with_light_rain
-        ]])
-        
-        # Predict using the loaded model
-        prediction = model.predict(features)
-        
-        # Return prediction
-        return jsonify({"prediction": prediction.tolist()})
-
-    except Exception as e:
-        # If an error occurs, return the error message
-        return jsonify({"error": str(e)}), 400
-
-
-
 
 @app.route('/')
 def index():
