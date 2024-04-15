@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/faq.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="faq-container">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-section" onclick="toggleAnswer('faq1')">
+        <div class="faq-question">What do we do?</div>
+        <div class="faq-answer" id="faq1">
+            <p>We provide a service to check the availability of Dublin Bikes with availability predictions to ensure the bike you need is available!</p>
+        </div>
+    </div>
+    <div class="faq-section" onclick="toggleAnswer('faq2')">
+        <div class="faq-question">How does the Journey Planner work?</div>
+        <div class="faq-answer" id="faq2">
+            <p>The Journey Planner uses Google Maps to find the shortest route using Dublin Bikes while taking availability into consideration so you don't end up at a station with no bikes!</p>
+        </div>
+    </div>
+    <div class="faq-section" onclick="toggleAnswer('faq3')">
+        <div class="faq-question">How often is the website updated?</div>
+        <div class="faq-answer" id="faq3">
+            <p>Every 5 minutes. The accuracy of our service is of the upmost importance!</p>
+        </div>
+    </div>
+    <div class="faq-section" onclick="toggleAnswer('faq4')">
+        <div class="faq-question">Do you have plans to expand to different cities?</div>
+        <div class="faq-answer" id="faq4">
+            <p>Stay Tuned!</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAnswer(id) {
+    var answer = document.getElementById(id);
+    if (answer.style.display === 'block') {
+        answer.style.display = 'none';
+    } else {
+        answer.style.display = 'block';
+    }
+}
+</script>
+{% endblock %}

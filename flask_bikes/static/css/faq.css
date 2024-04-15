@@ -1,0 +1,59 @@
+h2 {
+    color: white;
+}
+
+.faq-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 100;
+    display: block;
+    align-items: center;
+    margin: 0 auto;
+    padding: 5px 10px;
+    background-color: #50c17d;
+    width: 95%;
+    height: 60vh;
+    margin-top: 5vh;
+    text-align: center;
+    border: 1px solid black;
+    font-size: 18px;
+    justify-content: center;
+    border-radius: 8px;
+    overflow-y: auto;
+}
+
+.faq-section {
+    margin: 20px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.faq-question {
+    cursor: pointer;
+    padding: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.faq-answer {
+    padding: 10px;
+    display: none; /* Hide by default */
+    background: #50c17d;
+    border-top: 1px solid #ddd;
+    border-radius: 8px;
+    color: white;
+}
+
+@media (max-width: 600px) {
+    .faq-container {
+        width: 95%; /* Makes the container fill the screen */
+        padding: 5px; /* Reduces padding */
+        font-size: 16px; /* Smaller font for smaller screens */
+    }
+
+    .faq-section, .faq-question, .faq-answer {
+        padding: 10px; /* Slightly less padding to save space */
+    }
+}
+

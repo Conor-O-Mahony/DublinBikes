@@ -93,8 +93,8 @@ def run(target):
         if dummies==True:
             dummie_vals = pd.get_dummies(minimised_df['description'])
             minimised_df = pd.concat([minimised_df, dummie_vals], axis=1)
-            with pd.option_context("future.no_silent_downcasting", True):
-                minimised_df = minimised_df.replace({True: 1, False: 0}).infer_objects(copy=False)
+            #with pd.option_context("future.no_silent_downcasting", True):
+            minimised_df = minimised_df.replace({True: 1, False: 0})#.infer_objects(copy=False)
             
         minimised_df = minimised_df.drop(labels=unnecessary_features, axis=1)
 
