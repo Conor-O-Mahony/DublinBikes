@@ -48,15 +48,15 @@
         </form>
 
         <div id="plotFilters" style="display:none; margin-top: 20px;">
-            <button type="button" onclick="filterData('hour')" class="collapse-btn">Hour</button>
-            <button type="button" onclick="filterData('day')" class="collapse-btn">Day</button>
-            <button type="button" onclick="filterData('week')" class="collapse-btn">Week</button>
-            <button type="button" onclick="filterData('month')" class="collapse-btn">Month</button>
+            <button type="button" onclick="filterData('hour')" class="collapse-btn">Hourly</button>
+            <button type="button" onclick="filterData('day')" class="collapse-btn">Dayly</button>
         </div>
 
         <div id="dataPlot" style="margin-top: 20px;">
-            <img src="" alt="Data Plot" id="plotImage" style="display:none; width: 100%;">
+            <!-- Initially no src is set -->
+            <img id="plotImage" src="/static/images/predictions_plot.png" alt="Predictions Plot" style="width:100%; display:none;">
         </div>
+        
     </div>
 </div>
 

@@ -1,69 +1,144 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, url_for
 from dbManager import engine
 from sqlalchemy import text
 import requests
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-import pickle
 from flask import Flask, jsonify, request
 import pandas as pd
 import numpy as np
 import os
+from sklearn.ensemble import RandomForestRegressor
+import pickle
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 # conversion to Dublin time
 utc_time = datetime.now(timezone.utc)
 local_time = utc_time.astimezone(ZoneInfo("Europe/Dublin"))
 
 
-
 app = Flask(__name__)
 
+# Loading the models
+models = {}
+model_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','Models','pickle_files'))  
+for filename in os.listdir(model_dir):
+    if filename.endswith('.pkl'):
+        parts = filename.split('_')
+        number_part = parts[1]  
+        station_number = int(number_part.split('.')[0]) 
+        with open(os.path.join(model_dir, filename), 'rb') as handle:
+            models[station_number] = pickle.load(handle)
 
-# Load the pre-trained model
-model_path = path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','Models','pickle_files','bikes_1.pkl'))  # Update with your actual model path
-with open(model_path, 'rb') as handle:
-    model = pickle.load(handle)
 
-@app.route("/predict", methods=['GET'])
-def predict():
-    # Retrieve feature values from the query string
-    try:
-        temperature = request.args.get('temperature', default=0, type=float)
-        wind_speed = request.args.get('wind_speed', default=0, type=float)
-        rainfall = request.args.get('rainfall', default=0, type=float)
-        day_of_week = request.args.get('day_of_week', default=0, type=int)
-        hour = request.args.get('hour', default=0, type=int)
-        minute = request.args.get('minute', default=0, type=int)
-        broken_clouds = request.args.get('broken_clouds', default=0, type=int)
-        clear_sky = request.args.get('clear_sky', default=0, type=int)
-        few_clouds = request.args.get('few_clouds', default=0, type=int)
-        fog = request.args.get('fog', default=0, type=int)
-        haze = request.args.get('haze', default=0, type=int)
-        heavy_intensity_rain = request.args.get('heavy_intensity_rain', default=0, type=int)
-        light_rain = request.args.get('light_rain', default=0, type=int)
-        mist = request.args.get('mist', default=0, type=int)
-        moderate_rain = request.args.get('moderate_rain', default=0, type=int)
-        overcast_clouds = request.args.get('overcast_clouds', default=0, type=int)
-        scattered_clouds = request.args.get('scattered_clouds', default=0, type=int)
-        thunderstorm_with_light_rain = request.args.get('thunderstorm_with_light_rain', default=0, type=int)
-        
-        # Assemble the features in the same order as the training set
-        features = np.array([[
-            temperature, wind_speed, rainfall, day_of_week, hour, minute,
-            broken_clouds, clear_sky, few_clouds, fog, haze, heavy_intensity_rain,
-            light_rain, mist, moderate_rain, overcast_clouds, scattered_clouds,thunderstorm_with_light_rain
-        ]])
+def fetch_weather_data(date):
+    city = "Dublin,IE"
+    api_key = "dd05f29b3c673dec7f4a9df4f8cce8fd" 
+    units = "metric"
+    forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units={units}"
+    response = requests.get(forecast_url)
+    if response.status_code == 200:
+        forecast_data = response.json()
+        weather_data = []
+        for entry in forecast_data['list']:
+            forecast_time = datetime.fromtimestamp(entry['dt'], tz=timezone.utc)
+            if forecast_time.date() == datetime.strptime(date, "%Y-%m-%d").date():
+                weather_data.append({
+                    'hour': forecast_time.hour,
+                    'temperature': entry['main']['temp'],
+                    'wind_speed': entry['wind']['speed'],
+                    'rainfall': entry.get('rain', {}).get('3h', 0) / 3 if 'rain' in entry else 0,
+                    'weather_description': entry['weather'][0]['main'].lower()
+                })
+        return weather_data
+    return None
 
-        # Predict using the loaded model
-        prediction = model.predict(features)
-        
-        # Return prediction
-        return jsonify({"prediction": prediction.tolist()})
+def map_weather_conditions(description):
+    description = description.lower()
+    return {
+        'clear_sky': 1 if 'clear' in description else 0,
+        'few_clouds': 1 if 'few clouds' in description else 0,
+        'scattered_clouds': 1 if 'scattered clouds' in description else 0,
+        'broken_clouds': 1 if 'broken clouds' in description else 0,
+        'overcast_clouds': 1 if 'overcast clouds' in description else 0,
+        'mist': 1 if 'mist' in description else 0,
+        'fog': 1 if 'fog' in description else 0,
+        'haze': 1 if 'haze' in description else 0,
+        'drizzle': 1 if 'drizzle' in description else 0,
+        'light_rain': 1 if 'light rain' in description else 0,
+        'moderate_rain': 1 if 'moderate rain' in description else 0,
+        'heavy_intensity_rain': 1 if 'heavy intensity rain' in description else 0,
+        'shower_rain': 1 if 'shower rain' in description else 0,
+        'thunderstorm_with_light_rain': 1 if 'thunderstorm with light rain' in description else 0,
+    }
 
-    except Exception as e:
-        # If an error occurs, return the error message
-        return jsonify({"error": str(e)}), 400
 
+@app.route('/predictive_plot/<int:station_number>', methods=['POST'])
+def predictive_plot(station_number):
+    date = request.form.get('date')
+    if not date:
+        return jsonify({'error': 'Date not provided'}), 400
+
+    weather_data = fetch_weather_data(date)
+    if not weather_data:
+        return jsonify({'error': 'Weather data not available for this date'}), 404
+
+    current_hour = weather_data[0]['hour']
+    model = models.get(station_number)
+    if not model:
+        return jsonify({'error': 'Model not found'}), 404
+
+    day_of_week = datetime.strptime(date, "%Y-%m-%d").weekday()
+    predictions = []
+    for data in weather_data:
+        conditions = map_weather_conditions(data['weather_description'])
+        features = [
+            data['temperature'],
+            data['wind_speed'],
+            data['rainfall'], 
+            day_of_week,
+            data['hour'],
+            0,
+            conditions['clear_sky'],
+            conditions['few_clouds'],
+            conditions['scattered_clouds'],
+            conditions['broken_clouds'],
+            conditions['overcast_clouds'],
+            conditions['mist'],
+            conditions['light_rain'],
+            conditions['moderate_rain'],
+            conditions['heavy_intensity_rain'],
+            conditions['fog'],
+            conditions['haze'],
+            conditions['thunderstorm_with_light_rain']
+        ]
+
+        # Predict based on available data from the API for every 3 hours (stops at hour 21)
+        prediction = model.predict(np.array(features).reshape(1, -1))
+        predictions.append(prediction[0])
+
+    # list of hours
+    forecast_hours = [current_hour + i * 3 for i in range(len(predictions))]
+    
+    plot_path = generate_plot(predictions, forecast_hours)
+    return jsonify({'plot_url': plot_path})
+
+def generate_plot(predictions, hours):
+    plt.figure(figsize=(10, 5))
+    plt.plot(hours, predictions, marker='o')
+    plt.title('Predicted Number of Bikes Available Throughout the Day')
+    plt.xlabel('Hour of the Day')
+    plt.ylabel('Bikes Available')
+    plt.grid(True)
+    plt.xticks(hours) 
+    plt.savefig('static/images/predictions_plot.png')
+    plt.close()
+    return '/static/images/predictions_plot.png'
+
+
+from datetime import datetime
 
 
 @app.route('/')
