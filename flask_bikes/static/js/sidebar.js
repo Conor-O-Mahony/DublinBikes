@@ -85,8 +85,12 @@ function displayPlot(type) {
         }
         const plotImage = document.getElementById('plotImage');
         const timestamp = new Date().getTime(); // Get current timestamp
-        plotImage.src = `/static/images/predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
+        plotImage.src = `/static/images/bikes_predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
         plotImage.style.display = 'block';
+
+        const plotImage2 = document.getElementById('plotImage2');
+        plotImage2.src = `/static/images/stands_predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
+        plotImage2.style.display = 'block';
     })
     .catch(error => {
         console.error('Error:', error);

@@ -22,16 +22,29 @@ local_time = utc_time.astimezone(ZoneInfo("Europe/Dublin"))
 app = Flask(__name__)
 
 # Loading the models
-models = {}
-model_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','Models','pickle_files'))  
+model_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Models', 'pickle_files'))
+models = {'bikes': {}, 'stands': {}}
+
 for filename in os.listdir(model_dir):
     if filename.endswith('.pkl'):
         parts = filename.split('_')
-        number_part = parts[1]  
-        station_number = int(number_part.split('.')[0]) 
-        with open(os.path.join(model_dir, filename), 'rb') as handle:
-            models[station_number] = pickle.load(handle)
+        if len(parts) == 2 and parts[0] in ['bikes', 'stands']:
+            model_type = parts[0]
+            station_number = parts[1].split('.')[0] 
+            if station_number.isdigit():
+                station_number = int(station_number)
+                filepath = os.path.join(model_dir, filename)
+                with open(filepath, 'rb') as handle:
+                    models[model_type][station_number] = pickle.load(handle)
 
+
+
+
+for model_type in models:
+    for station in models[model_type]:
+        print(f"Loaded model for {model_type} at station {station}")
+    if not models[model_type]:
+        print(f"No models loaded for {model_type}")
 
 def fetch_weather_data(date):
     city = "Dublin,IE"
@@ -85,57 +98,66 @@ def predictive_plot(station_number):
     if not weather_data:
         return jsonify({'error': 'Weather data not available for this date'}), 404
 
-    current_hour = weather_data[0]['hour']
-    model = models.get(station_number)
-    if not model:
-        return jsonify({'error': 'Model not found'}), 404
+    results = {}
+    for model_type in ['bikes', 'stands']:
+        model = models[model_type].get(station_number)
+        print(models)
+        if model is None:
+            print(f"No model found for {model_type} at station {station_number}")
+            continue  # Skip if no model is found for this type
 
-    day_of_week = datetime.strptime(date, "%Y-%m-%d").weekday()
-    predictions = []
-    for data in weather_data:
-        conditions = map_weather_conditions(data['weather_description'])
-        features = [
-            data['temperature'],
-            data['wind_speed'],
-            data['rainfall'], 
-            day_of_week,
-            data['hour'],
-            0,
-            conditions['clear_sky'],
-            conditions['few_clouds'],
-            conditions['scattered_clouds'],
-            conditions['broken_clouds'],
-            conditions['overcast_clouds'],
-            conditions['mist'],
-            conditions['light_rain'],
-            conditions['moderate_rain'],
-            conditions['heavy_intensity_rain'],
-            conditions['fog'],
-            conditions['haze'],
-            conditions['thunderstorm_with_light_rain']
-        ]
+        day_of_week = datetime.strptime(date, "%Y-%m-%d").weekday()
+        predictions = []
+        forecast_hours = []  # Initialize an empty list for forecast hours
+        for data in weather_data:
+            conditions = map_weather_conditions(data['weather_description'])
+            features = [
+                data['temperature'],
+                data['wind_speed'],
+                data['rainfall'], 
+                day_of_week,
+                data['hour'],
+                0,
+                conditions['clear_sky'],
+                conditions['few_clouds'],
+                conditions['scattered_clouds'],
+                conditions['broken_clouds'],
+                conditions['overcast_clouds'],
+                conditions['mist'],
+                conditions['light_rain'],
+                conditions['moderate_rain'],
+                conditions['heavy_intensity_rain'],
+                conditions['fog'],
+                conditions['haze'],
+                conditions['thunderstorm_with_light_rain']
+            ]
 
-        # Predict based on available data from the API for every 3 hours (stops at hour 21)
-        prediction = model.predict(np.array(features).reshape(1, -1))
-        predictions.append(prediction[0])
+            prediction = model.predict(np.array(features).reshape(1, -1))
+            predictions.append(prediction[0])
 
-    # list of hours
-    forecast_hours = [current_hour + i * 3 for i in range(len(predictions))]
-    
-    plot_path = generate_plot(predictions, forecast_hours)
-    return jsonify({'plot_url': plot_path})
+            current_hour = min(data['hour'] for data in weather_data)  # Get the earliest hour in the weather data
+            forecast_hours = [current_hour + i * 3 for i in range(len(predictions))]
 
-def generate_plot(predictions, hours):
+
+        plot_path = generate_plot(predictions, forecast_hours, model_type)
+        results[model_type] = plot_path
+
+    return jsonify(results)
+
+
+def generate_plot(predictions, hours, model_type):
     plt.figure(figsize=(10, 5))
     plt.plot(hours, predictions, marker='o')
-    plt.title('Predicted Number of Bikes Available Throughout the Day')
+    plt.title(f'Predicted Number of {model_type.capitalize()} Available Throughout the Day')
     plt.xlabel('Hour of the Day')
-    plt.ylabel('Bikes Available')
+    plt.ylabel(f'{model_type.capitalize()} Available')
     plt.grid(True)
-    plt.xticks(hours) 
-    plt.savefig('static/images/predictions_plot.png')
+    plt.xticks(hours)
+    plot_filename = f'static/images/{model_type}_predictions_plot.png'
+    plt.savefig(plot_filename)
     plt.close()
-    return '/static/images/predictions_plot.png'
+    return url_for('static', filename=os.path.basename(plot_filename))
+
 
 
 from datetime import datetime
