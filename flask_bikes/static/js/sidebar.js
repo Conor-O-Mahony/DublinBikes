@@ -8,9 +8,8 @@ function updateSidebarContent(station) {
 
     var plotImage = document.getElementById("plotImage");
     plotImage.style.display = "none";
-
-    var plotFilters = document.getElementById("plotFilters");
-    plotFilters.style.display = "none";
+    var plotImage2 = document.getElementById("plotImage2");
+    plotImage2.style.display = "none";
 
     var sidebar = document.getElementById("sidebar");
     var map = document.getElementById("map");
@@ -44,12 +43,10 @@ function toggleSidebar() {
 
 document.getElementById('showHistoricalData').addEventListener('click', function() {
     displayPlot('historical');
-    document.getElementById('plotFilters').style.display = 'block'; // Show filter buttons
 });
 
 document.getElementById('showPredictiveData').addEventListener('click', function() {
     displayPlot('predictive');
-    document.getElementById('plotFilters').style.display = 'block'; // Show filter buttons
 });
 
 
@@ -96,12 +93,8 @@ function displayPlot(type) {
         console.error('Error:', error);
         alert('Failed to fetch predictive data. ' + error.message);
         document.getElementById('plotImage').style.display = 'none';
+        document.getElementById('plotImage2').style.display = 'none';
     });
 }
-
-// function filterData(timeFrame) {
-//     const date = document.getElementById('dateInput').value;
-//     const plotUrl = `/filtered_${timeFrame}_plot_${date}.png`; 
-// }
 
 
