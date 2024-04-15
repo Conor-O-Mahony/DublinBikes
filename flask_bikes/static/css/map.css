@@ -34,13 +34,12 @@ h2 {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 28px;
   color: white;
-  background-color: #50c17d;
   box-sizing: border-box;
   display: block;
 }
 #JourneyBox {
   padding: 10px;
-  background-color: #50c17d;
+  background-color: #04AA6D;
   border: 1px solid black;
   border-radius: 8px;
   margin: 40px auto;
@@ -48,7 +47,6 @@ h2 {
 }
 
 #JourneyPlanner {
-  background-color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   border-radius: 8px;
   font-weight: bold;
@@ -59,7 +57,6 @@ h2 {
   align-items: center;
   max-width: 90%;
   padding: 20px; 
-  background-color: #50c17d;
 
   color: white;
 }
@@ -94,7 +91,7 @@ h2 {
 }
 
 #testroutebutton {
-  background-color: #4CAF50;
+  background-color: #50c17d;
   color: white;
   flex-basis: auto; 
 }

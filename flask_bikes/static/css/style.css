@@ -43,6 +43,7 @@ nav ul {
 nav ul li {
     display: inline-block;
     margin-right: 10px; 
+    transition: transform 0.2s ease-in-out;
 }
 
 nav ul li a {
@@ -50,25 +51,25 @@ nav ul li a {
     color: black;
     font-weight: bold;
     padding: 10px 15px; 
-    border: 2px solid black;
+    /* border: 2px solid black; */
     border-radius: 10px; 
     transition: all 0.3s ease; 
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.341); 
 }
 
 nav ul li a:hover, nav ul li a:focus {
-    background-color: white;
-    color: black;
+    color: rgb(255, 255, 255);
     border-color: black; 
+    background-color: #04AA6D;
 }
 
 nav ul li:hover {
     transform: translateY(-2px); 
-    transition: transform 0.2s ease-out;
 }
 
+
 button {
-    background-color: #4CAF50; 
+    background-color: #50c17d; 
     color: white;
     border: none; 
     cursor: pointer; 
@@ -80,7 +81,7 @@ button {
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #50c17d;
 }
 
 button:focus {
