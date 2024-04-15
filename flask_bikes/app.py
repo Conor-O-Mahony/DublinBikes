@@ -20,7 +20,7 @@ app = Flask(__name__)
 
 
 # Load the pre-trained model
-model_path = '/Users/okellyeneko/Documents/GitHub/DublinBikes/Models/pickle_files/bikes_1.pkl'  # Update with your actual model path
+model_path = path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','Models','pickle_files','bikes_1.pkl'))  # Update with your actual model path
 with open(model_path, 'rb') as handle:
     model = pickle.load(handle)
 
@@ -53,7 +53,7 @@ def predict():
             broken_clouds, clear_sky, few_clouds, fog, haze, heavy_intensity_rain,
             light_rain, mist, moderate_rain, overcast_clouds, scattered_clouds,thunderstorm_with_light_rain
         ]])
-        
+
         # Predict using the loaded model
         prediction = model.predict(features)
         
