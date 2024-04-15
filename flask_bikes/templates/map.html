@@ -31,6 +31,11 @@
 
 <!-- Predictions section -->
 
+<!-- This is for the calendar function  -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
 <div id="sidebar" class="sidebar">
     <button type="button" onclick="toggleSidebar()" id="closeSidebar" style="float: right; margin-bottom: 10px;">Close</button>
     <div class="sidebar-content">
@@ -41,16 +46,24 @@
             </div>
 
             <label for="dateInput">Choose a date:</label>
-            <input type="date" id="dateInput" name="dateInput" style="margin-top: 10px; padding: 8px; width: calc(100% - 16px); border-radius: 4px; border: 1px solid #ccc;">
+            <input type="date" id="dateInput" name="dateInput" style="margin-top: 10px; padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+            
+            <div id="legend">
+                <span class="legend-color historical-color"></span> Historical 
+                <span class="legend-color predictive-color"></span> Predictive 
+            </div>
 
             <button type="button" id="showHistoricalData" class="collapse-btn" style="margin-top: 20px;">Show Historical Data</button>
-            <button type="button" id="showPredictiveData" class="collapse-btn" style="margin-top: 10px;">Show Predictive Data</button>
+            <button type="button" id="showPredictiveData" class="collapse-btn" style="margin-top: 20px;">Show Predictive Data</button>
         </form>
 
         <div id="dataPlot" style="margin-top: 20px;">
-            <!-- Initially no src is set -->
             <img id="plotImage" src="/static/images/bikes_predictions_plot.png" alt="Predictions Plot" style="width:100%; display:none;">
             <img id="plotImage2" src="/static/images/stands_predictions_plot.png" alt="Predictions Plot 2" style="width:100%; display:none;">
+        </div>
+        <div id="dataPlot" style="margin-top: 20px;">
+            <img id="plotHist" src="/static/images/bikes_historical_plot.png" alt="Historical Plot" style="width:100%; display:none;">
+            <img id="plotHist2" src="/static/images/stands_historical_plot.png" alt="Historical Plot 2" style="width:100%; display:none;">
         </div>
         
     </div>

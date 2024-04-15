@@ -148,6 +148,99 @@ def generate_plot(predictions, hours, model_type):
     return url_for('static', filename=os.path.basename(plot_filename))
 
 
+from dbManager import engine  # Ensure you import the engine correctly
+
+from flask import Flask, request, jsonify, current_app
+
+@app.route('/historical_plot/<int:station_number>', methods=['POST'])
+def historical_data(station_number):
+    date = request.form.get('date')
+    if not date:
+        return jsonify({'error': 'Date not provided'}), 400
+
+    try:
+        bike_plot_url, stand_plot_url, error = fetch_historical_data(engine, station_number, date)
+        if error:
+            return jsonify({'error': error}), 404
+        return jsonify({'bike_plot_url': bike_plot_url, 'stand_plot_url': stand_plot_url})
+    except Exception as e:
+        current_app.logger.error(f'Unexpected error: {e}', exc_info=True)
+        return jsonify({'error': 'Internal server error'}), 500
+
+    
+
+
+
+
+
+from sqlalchemy.sql import text
+from sqlalchemy.exc import SQLAlchemyError
+
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
+
+Session = sessionmaker(bind=engine)
+
+from sqlalchemy.sql import text
+from sqlalchemy.exc import SQLAlchemyError
+from flask import jsonify, url_for
+import matplotlib.pyplot as plt
+
+def fetch_historical_data(engine, station_number, date):
+    query = text("""
+        SELECT bikes, stands, timestamp
+        FROM availability
+        WHERE number = :station_number AND DATE(timestamp) = :date
+        ORDER BY timestamp
+    """)
+
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(query, {'station_number': station_number, 'date': date})
+            rows = result.fetchall()
+            if not rows:
+                return None, None, "No data available for this date."
+
+        bikes = [row[0] for row in rows]  # Accessing 'bikes' by index
+        stands = [row[1] for row in rows]  # Accessing 'stands' by index
+        timestamps = [row[2] for row in rows]  # Accessing 'timestamp' by index
+
+        bike_plot_filename = generate_historical_plot(bikes, timestamps, "Bikes", station_number, date)
+        stand_plot_filename = generate_historical_plot(stands, timestamps, "Stands", station_number, date)
+
+        return url_for('static', filename=bike_plot_filename), url_for('static', filename=stand_plot_filename), None
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return None, None, "Error generating plots."
+
+
+def generate_historical_plot(data, timestamps, type, station_number, date):
+    try:
+        plt.figure(figsize=(10, 5))
+        plt.plot(timestamps, data, marker='o', linestyle='-', color='b')
+        plt.title(f'Historical {type} Availability on {date} for Station {station_number}')
+        plt.xlabel('Time of Day')
+        plt.ylabel(f'Number of {type} Available')
+        plt.grid(True)
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        
+        plot_filename = f'static/images/{type.lower()}_historical_plot.png'
+        plt.savefig(plot_filename)
+        plt.close()
+        
+        return os.path.basename(plot_filename)
+    except Exception as e:
+        print(f"Failed to create or save plot {plot_filename}: {e}")
+        return None
+
+
+
+
+
+
+
 @app.route('/')
 def index():
     return render_template('index.html')

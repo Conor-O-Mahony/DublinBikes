@@ -367,3 +367,35 @@ tr:nth-child(odd) {
 #closeSidebar:hover {
   background-color: #d32f2f; /* Darker red on hover */
 }
+
+
+.legend-color {
+  height: 10px;
+  width: 10px;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.historical-color {
+  background-color: blue;
+}
+
+.predictive-color {
+  background-color: yellow;
+}
+
+.flatpickr-day.historical {
+  background-color: blue;
+  color: white;
+}
+
+.flatpickr-day.predictive {
+  background-color: yellow;
+  color: black;
+}
+
+.flatpickr-day.disabled {
+  background: #f3f3f3;
+  color: #ccc;
+  cursor: not-allowed;
+}

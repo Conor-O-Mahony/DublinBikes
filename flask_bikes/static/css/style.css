@@ -80,7 +80,7 @@ button {
 }
 
 button:hover {
-    background-color: #45a049; /* Darker shade of green when hovered */
+    background-color: #45a049;
 }
 
 button:focus {
