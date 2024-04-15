@@ -23,28 +23,6 @@ app = Flask(__name__)
 
 # Loading the models
 model_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Models', 'pickle_files'))
-models = {'bikes': {}, 'stands': {}}
-
-for filename in os.listdir(model_dir):
-    if filename.endswith('.pkl'):
-        parts = filename.split('_')
-        if len(parts) == 2 and parts[0] in ['bikes', 'stands']:
-            model_type = parts[0]
-            station_number = parts[1].split('.')[0] 
-            if station_number.isdigit():
-                station_number = int(station_number)
-                filepath = os.path.join(model_dir, filename)
-                with open(filepath, 'rb') as handle:
-                    models[model_type][station_number] = pickle.load(handle)
-
-
-
-
-for model_type in models:
-    for station in models[model_type]:
-        print(f"Loaded model for {model_type} at station {station}")
-    if not models[model_type]:
-        print(f"No models loaded for {model_type}")
 
 def fetch_weather_data(date):
     city = "Dublin,IE"
@@ -98,17 +76,26 @@ def predictive_plot(station_number):
     if not weather_data:
         return jsonify({'error': 'Weather data not available for this date'}), 404
 
-    results = {}
+    # Loading the models for input station
+    models = {'bikes': None, 'stands': None}
     for model_type in ['bikes', 'stands']:
-        model = models[model_type].get(station_number)
-        print(models)
+        filename = f"{model_type}_{station_number}.pkl"
+        filepath = os.path.join(model_dir, filename)
+        if os.path.isfile(filepath):
+            with open(filepath, 'rb') as handle:
+                models[model_type] = pickle.load(handle)
+
+
+    results = {}
+    for model_type, model in models.items():
         if model is None:
             print(f"No model found for {model_type} at station {station_number}")
-            continue  # Skip if no model is found for this type
+            continue
+        else:
+            print(f"Model loaded for {model_type} at station {station_number}")
 
         day_of_week = datetime.strptime(date, "%Y-%m-%d").weekday()
         predictions = []
-        forecast_hours = []  # Initialize an empty list for forecast hours
         for data in weather_data:
             conditions = map_weather_conditions(data['weather_description'])
             features = [
@@ -141,7 +128,9 @@ def predictive_plot(station_number):
 
         plot_path = generate_plot(predictions, forecast_hours, model_type)
         results[model_type] = plot_path
-
+        handle.close()
+    del models # Realsing the models from memory
+    print(f"Models for station {station_number} have been released from memory.")
     return jsonify(results)
 
 
@@ -157,10 +146,6 @@ def generate_plot(predictions, hours, model_type):
     plt.savefig(plot_filename)
     plt.close()
     return url_for('static', filename=os.path.basename(plot_filename))
-
-
-
-from datetime import datetime
 
 
 @app.route('/')
