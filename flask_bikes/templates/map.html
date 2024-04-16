@@ -184,13 +184,16 @@
                         title: station.name,
                         content: buildContent(station),
             });
-            marker.addListener("click", () => {
-                updateSidebarContent(station);
-            });
-
             // Add click listener to the marker
             marker.addListener("click", () => {
                 toggleHighlight(marker, station);
+                let sidebarwidth = document.getElementById('sidebar').style.width;
+                if (marker.content.classList.contains("highlight")) {
+                    updateSidebarContent(station);
+
+                } else if (sidebarwidth!="0px" && marker.content.classList.contains("highlight")==false) {
+                    toggleSidebar();
+                }
             });
 
             markers.push(marker);
