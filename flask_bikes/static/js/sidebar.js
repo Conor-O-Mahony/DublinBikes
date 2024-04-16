@@ -1,10 +1,11 @@
 function updateSidebarContent(station) {
 
-    var stationNumber = document.getElementById("stationNumber");
-    stationNumber.textContent = "Station number: " + station.number;
+    if (station!=null) {
+        var stationNumber = document.getElementById("stationNumber");
+        stationNumber.textContent = "Station number: " + station.number;
+    } 
     var dateInput = document.getElementById("dateInput");
     dateInput.value = ""; 
-
 
     var plotImage = document.getElementById("plotImage");
     plotImage.style.display = "none";
@@ -42,9 +43,8 @@ function toggleSidebar() {
         content.style.opacity = "1";
         content.style.pointerEvents = "auto";
     }
+    clearMarkers();
 }
-
-
 
 document.getElementById('showHistoricalData').addEventListener('click', function() {
     displayPlot('historical');
@@ -150,10 +150,9 @@ function displayPlot(type) {
     }
 }
 
-
 document.addEventListener('DOMContentLoaded', function() {
     const today = new Date();
-    const historicalStart = new Date(today.getFullYear(), 1, 19); // february is 1 
+    const historicalStart = new Date(2024, 1, 19); // february is 1 
     const fiveDaysLater = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5); // until the next 5 days 
 
     // Using flatpickr library to customise the calendar (imported the scripts in the map.html)

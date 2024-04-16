@@ -6,8 +6,8 @@ from sklearn.model_selection import train_test_split
 import pickle
 from sklearn.ensemble import RandomForestRegressor
 
-def run(target):
-    load_dotenv('../db.env')
+def generate_models(target):
+    load_dotenv('../../db.env')
 
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     URI = 'dublinbikes.clw8uqmac8qf.eu-west-1.rds.amazonaws.com'
@@ -93,8 +93,7 @@ def run(target):
         if dummies==True:
             dummie_vals = pd.get_dummies(minimised_df['description'])
             minimised_df = pd.concat([minimised_df, dummie_vals], axis=1)
-            #with pd.option_context("future.no_silent_downcasting", True):
-            minimised_df = minimised_df.replace({True: 1, False: 0})#.infer_objects(copy=False)
+            minimised_df = minimised_df.replace({True: 1, False: 0})
             
         minimised_df = minimised_df.drop(labels=unnecessary_features, axis=1)
 
@@ -138,16 +137,11 @@ def run(target):
                 
                 model.fit(X_train, y_train)
         
-                with open(f'{path}/{target}_{i}.pkl', 'wb') as handle:
+                with open(f'pickle_files/{target}_{i}.pkl', 'wb') as handle:
                     pickle.dump(model, handle, pickle.HIGHEST_PROTOCOL)
 
         print(f"{target} have been serialised")
 
-    generate_models(target)
-
 if __name__ == "__main__":
-    path = os.path.join(os.path.dirname(os.path.realpath(__file__)),'pickle_files')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    run("bikes")
-    run("stands")
+    generate_models("bikes")
+    generate_models("stands")
