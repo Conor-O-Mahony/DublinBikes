@@ -30,27 +30,31 @@
             <div id="JourneyBox">
                 <h2>Plan A Journey</h2>
                 <div id="JourneyPlanner">
-                    <label for="origin">Origin:</label>
-                    <input type="text" id="origin" name="origin" size="35"/>
-            
-                    <label for="destination">Destination:</label>
-                    <input type="text" id="destination" name="destination" size="35"/>
-                    
+                    <div>
+                        <label for="origin">Origin:</label>
+                        <input type="text" id="origin" name="origin" size="35"/>
+                    </div>
+                    <div>
+                        <label for="destination">Destination:</label>
+                        <input type="text" id="destination" name="destination" size="35"/>
+                    </div>
                     <label id="triptimelabel" for="triptime">When (optional):</label>
                     <input type="datetime-local" id="triptime" name="triptime">
                 </div>
             </div>
 
             <div id="JourneyButtons">
+                <h3>See availabilities for a station</h3>
                 <input type="date" placeholder="Choose a date" id="dateInput" name="dateInput" style="margin-top: 10px; margin-bottom: 10px; padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
-                
+                <select name="stations" id="stations-select" width="20px">
+                </select>
                 <div id="legend">
                     <span class="legend-color historical-color"></span> Historical 
                     <span class="legend-color predictive-color"></span> Predictive 
                 </div>
 
-                <button type="button" id="showHistoricalData" class="collapse-btn" style="margin-top: 20px;">Show Historical Data</button>
-                <button type="button" id="showPredictiveData" class="collapse-btn" style="margin-top: 20px;">Show Predictive Data</button>
+                <button type="button" id="showHistoricalData" class="collapse-btn" style="margin-top: 20px; display: none;">Show Historical Data</button>
+                <button type="button" id="showPredictiveData" class="collapse-btn" style="margin-top: 20px; display: none;">Show Predictive Data</button>
             </div>
         </form>
 
@@ -71,7 +75,7 @@
 <div id="container">
     <div id="map" class="map"></div>
     <div id="searchbar">
-        <input type="text" id="searchbox" name="searchbox" size="35"/>
+        <input type="text" placeholder="Plan a journey from.." id="searchbox" name="searchbox" size="35"/>
     </div>
 </div>
 
@@ -108,6 +112,7 @@
     var searchboxmarker;
     var searchboxlabel;
     var options;
+
 
     stations.forEach(station => {if (station.bikes > max) {max = station.bikes}});
 

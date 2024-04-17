@@ -1,13 +1,46 @@
+document.addEventListener('DOMContentLoaded', function() {
+    populateStationSelect(); // populating the dropdown selection
+
+    var stationsSelect = document.getElementById('stations-select');
+    var stationHeader = document.getElementById('stationNumber');
+
+    stationsSelect.addEventListener('change', function() {
+        var selectedStationNumber = this.value; 
+        console.log("Selected station number from dropdown:", selectedStationNumber);
+
+        if (selectedStationNumber) {
+            // ensuring the number is treated as a string
+            var station = stations.find(s => s.number.toString() === selectedStationNumber);
+            if (station) {
+                stationHeader.innerText = "Station number: " + station.number; // Update the header var
+                updateSidebarContent(station); // Update sidebar with selction
+            } else {
+                console.log("No station found with number:", selectedStationNumber);
+                stationHeader.innerText = "Station number: "; // if the selection is not valid
+                updateSidebarContent(null); 
+            }
+        } else {
+            stationHeader.innerText = "Station number: "; // If dropdown is default
+            updateSidebarContent(null); 
+        }
+    });
+});
+
 function updateSidebarContent(station) {
 
-    var stationNumber = document.getElementById("stationNumber");
-    if (station!=null) {     
-        stationNumber.textContent = "Station number: " + station.number;
-        document.getElementById("JourneyButtons").style.display = "block";
+    var stationHeader = document.getElementById('stationNumber');
+    var stationsSelect = document.getElementById('stations-select');
+
+    if (station) {
+        stationHeader.textContent = "Station number: " + station.number;
+        stationsSelect.value = station.number; // Ensure dropdown is synchronized without reset
+        document.getElementById("stationNumber").style.display = "block";
     } else {
-        stationNumber.textContent = "";
-        document.getElementById("JourneyButtons").style.display = "none";
+        stationHeader.textContent = "";
+        stationsSelect.value = ""; // Reset only if there's no station
+        document.getElementById("stationNumber").style.display = "none";
     }
+
     var dateInput = document.getElementById("dateInput");
     dateInput.value = ""; 
 
@@ -31,6 +64,8 @@ function updateSidebarContent(station) {
         content.style.pointerEvents = "auto";
     }
 }
+
+
 
 function toggleSidebar() {
     var sidebar = document.getElementById("sidebar");
@@ -62,15 +97,30 @@ document.getElementById('showPredictiveData').addEventListener('click', function
 function displayPlot(type,station=null,mode=0) {
     var date;
     var stationNumber;
-    if (station==null) {
-        stationNumber = document.getElementById('stationNumber').innerText.split(': ')[1];
+    var stationHeader = document.getElementById('stationNumber');
+
+    if (station === null) {
+        var selectElement = document.getElementById('stations-select');
+        stationNumber = selectElement.value; // station number from the dropdown
+        if (!stationNumber) {
+            // If no station is selected, set it from the header if there is one
+            var headerValue = stationHeader.innerText.split(': ')[1];
+            if (headerValue) {
+                selectElement.value = headerValue;
+                stationNumber = headerValue;
+            }
+        } else {
+            // Update the stationHeader if there is a selected option
+            stationHeader.innerText = "Station number: " + stationNumber;
+        }
         date = document.getElementById('dateInput').value;
     } else {
-        stationNumber = station
+        stationNumber = station;
+        stationHeader.innerText = "Station number: " + stationNumber; // update the header
         date = new Date();
         date = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
     }
-    
+
     if (!date) {
         alert("Please select a date.");
         return;
@@ -173,31 +223,55 @@ function displayPlot(type,station=null,mode=0) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date();
-    const historicalStart = new Date(2024, 1, 19); // february is 1 
-    const fiveDaysLater = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5); // until the next 5 days 
+const historicalStart = new Date(2024, 0, 19); 
+const today = new Date();
+const fiveDaysLater = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5);
 
-    // Using flatpickr library to customise the calendar (imported the scripts in the map.html)
+document.addEventListener('DOMContentLoaded', function() {
+    populateStationSelect(); // populate dropdown
 
     flatpickr("#dateInput", {
         enableTime: false,
         dateFormat: "Y-m-d",
-        disable: [
-            function(date) {
-                return (date < historicalStart || date > fiveDaysLater);
-            }
-        ],
-        onDayCreate: function(dObj, dStr, fp, dayElem) {
-            const date = dayElem.dateObj;
-            const currentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-            if (currentDate >= historicalStart && currentDate <= today) {
-                dayElem.classList.add("historical");
-            } else if (currentDate > today && currentDate <= fiveDaysLater) {
-                dayElem.classList.add("predictive");
-            }
+        onChange: function(selectedDates, dateStr, instance) {
+            handleButtonVisibility(new Date(dateStr));
         }
     });
 });
+
+function handleButtonVisibility(selectedDate) {
+    const historicalButton = document.getElementById('showHistoricalData');
+    const predictiveButton = document.getElementById('showPredictiveData');
+
+    if (selectedDate >= historicalStart && selectedDate <= today) {
+        historicalButton.style.display = 'block';
+        predictiveButton.style.display = 'none';
+    } else if (selectedDate > today && selectedDate <= fiveDaysLater) {
+        predictiveButton.style.display = 'block';
+        historicalButton.style.display = 'none';
+    } else {
+        historicalButton.style.display = 'none';
+        predictiveButton.style.display = 'none';
+    }
+}
+
+
+
+
+function populateStationSelect() {
+    var select = document.getElementById('stations-select');
+    select.innerHTML = '';
+
+    var defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Select a station";
+    select.appendChild(defaultOption);
+
+    stations.forEach(function(station) {
+        var option = document.createElement('option');
+        option.value = station.number;
+        option.textContent = station.number + " - " + station.name;
+        select.appendChild(option);
+    });
+}
 
