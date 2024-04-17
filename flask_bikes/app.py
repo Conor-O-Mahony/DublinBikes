@@ -166,7 +166,7 @@ def predictive_plot(station_number,mode):
             continue
         elif mode == 2 and model_type=="bikes":
             continue
-        
+
         if model is None:
             print(f"No model found for {model_type} at station {station_number}")
             continue
@@ -316,6 +316,6 @@ def stations():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=8000)
 
 
