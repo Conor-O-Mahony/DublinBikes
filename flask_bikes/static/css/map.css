@@ -438,3 +438,14 @@ tr:nth-child(odd) {
   color: #ccc;
   cursor: not-allowed;
 }
+
+#stations-select {
+  width: 50% !important;
+  margin-bottom: 10px;
+  padding: 5px 7px;
+  border: 1px solid #ccc; 
+  border-radius: 4px; 
+  background-color: #fff; 
+  width: auto;
+  color: #333;
+}
