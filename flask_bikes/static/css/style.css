@@ -11,8 +11,10 @@ html, body {
   background-color: white;
   border: 1px solid black;
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  height: 100px;
 }
-
+#head header {float:left; padding-left: 5px;}
+#head nav {float:right; padding-right: 50px;}
 header {
     display: flex;
     align-items: center; 

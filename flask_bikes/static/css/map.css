@@ -7,14 +7,9 @@ body {
   height: 100%;
   margin: 0;
 }
-#head {
-  height: 100px;
-}
 #page {
   height: calc(100% - 102px); /* use 90/100 of view height */
 }
-#head header {float:left; padding-left: 5px;}
-#head nav {float:right; padding-right: 50px;}
 .gm-style iframe + div { border:none!important; }
 #container {
   width: 100%;
