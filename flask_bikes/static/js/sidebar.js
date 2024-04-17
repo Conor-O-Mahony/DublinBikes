@@ -260,10 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    stationsSelect.addEventListener('change', function() {
-        const selectedDate = dateInput.value ? new Date(dateInput.value) : null;
-        handleButtonVisibility(selectedDate);  //when station changes to make sure to handle the buttons
-    });
+    //stationsSelect.addEventListener('change', function() {
+    //    const selectedDate = dateInput.value ? new Date(dateInput.value) : null;
+    //    handleButtonVisibility(selectedDate);  //when station changes to make sure to handle the buttons
+    //});
     
     
 });
