@@ -1,9 +1,13 @@
 function updateSidebarContent(station) {
 
-    if (station!=null) {
-        var stationNumber = document.getElementById("stationNumber");
+    var stationNumber = document.getElementById("stationNumber");
+    if (station!=null) {     
         stationNumber.textContent = "Station number: " + station.number;
-    } 
+        document.getElementById("JourneyButtons").style.display = "block";
+    } else {
+        stationNumber.textContent = "";
+        document.getElementById("JourneyButtons").style.display = "none";
+    }
     var dateInput = document.getElementById("dateInput");
     dateInput.value = ""; 
 
@@ -55,10 +59,21 @@ document.getElementById('showPredictiveData').addEventListener('click', function
 });
 
 
-function displayPlot(type) {
-    const date = document.getElementById('dateInput').value;
-    const stationNumber = document.getElementById('stationNumber').innerText.split(': ')[1];
+function displayPlot(type,station=null,mode=0) {
+    var date;
+    var stationNumber;
+    if (station==null) {
+        stationNumber = document.getElementById('stationNumber').innerText.split(': ')[1];
+        date = document.getElementById('dateInput').value;
+    } else {
+        stationNumber = station
+        date = new Date();
+        date = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+    }
 
+    console.log(stationNumber);
+    console.log(date);  
+    
     if (!date) {
         alert("Please select a date.");
         return;
@@ -68,7 +83,7 @@ function displayPlot(type) {
     params.append('date', date);
 
     if (type == 'predictive'){
-        fetch(`/predictive_plot/${stationNumber}`, {
+        fetch(`/predictive_plot/${stationNumber}/${mode}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -91,13 +106,24 @@ function displayPlot(type) {
             document.getElementById('plotHist2').style.display = 'none';
             
             const plotImage = document.getElementById('plotImage');
-            const timestamp = new Date().getTime(); // Get current timestamp
-            plotImage.src = `/static/images/bikes_predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
-            plotImage.style.display = 'block';
-    
             const plotImage2 = document.getElementById('plotImage2');
-            plotImage2.src = `/static/images/stands_predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
-            plotImage2.style.display = 'block';
+            const timestamp = new Date().getTime(); // Get current timestamp
+            if (mode==0) {
+                plotImage.src = `/static/images/bikes_predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
+                plotImage.style.display = 'block';
+            
+                plotImage2.src = `/static/images/stands_predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
+                plotImage2.style.display = 'block';
+            } else {
+                if (mode==1) {
+                    plotImage.src = `/static/images/bikes_predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
+                    plotImage.style.display = 'block';
+                } else if (mode==2) {
+                    plotImage2.src = `/static/images/stands_predictions_plot.png?${timestamp}`; // Append timestamp to the image URL to make update the img
+                    plotImage2.style.display = 'block';
+                }
+            }
+            
 
         })
         .catch(error => {

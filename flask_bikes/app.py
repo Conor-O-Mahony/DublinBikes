@@ -66,10 +66,10 @@ def map_weather_conditions(description):
         'thunderstorm_with_light_rain': 1 if 'thunderstorm with light rain' in description else 0,
     }
 
-def generate_plot(predictions, hours, model_type):
+def generate_plot(predictions, hours, model_type, station):
     plt.figure(figsize=(10, 5))
-    plt.plot(hours, predictions, marker='o')
-    plt.title(f'Predicted Number of {model_type.capitalize()} Available Throughout the Day')
+    plt.plot(hours, np.around(predictions), marker='o')
+    plt.title(f'Predicted Number of {model_type.capitalize()} Available for station {station}')
     plt.xlabel('Hour of the Day')
     plt.ylabel(f'{model_type.capitalize()} Available')
     plt.grid(True)
@@ -141,8 +141,8 @@ def historical_data(station_number):
         current_app.logger.error(f'Unexpected error: {e}', exc_info=True)
         return jsonify({'error': 'Internal server error'}), 500
     
-@app.route('/predictive_plot/<int:station_number>', methods=['POST'])
-def predictive_plot(station_number):
+@app.route('/predictive_plot/<int:station_number>/<int:mode>', methods=['POST'])
+def predictive_plot(station_number,mode):
     date = request.form.get('date')
     if not date:
         return jsonify({'error': 'Date not provided'}), 400
@@ -160,9 +160,13 @@ def predictive_plot(station_number):
             with open(filepath, 'rb') as handle:
                 models[model_type] = pickle.load(handle)
 
-
     results = {}
     for model_type, model in models.items():
+        if mode == 1 and model_type=="stands":
+            continue
+        elif mode == 2 and model_type=="bikes":
+            continue
+        
         if model is None:
             print(f"No model found for {model_type} at station {station_number}")
             continue
@@ -201,7 +205,7 @@ def predictive_plot(station_number):
             forecast_hours = [current_hour + i * 3 for i in range(len(predictions))]
 
 
-        plot_path = generate_plot(predictions, forecast_hours, model_type)
+        plot_path = generate_plot(predictions, forecast_hours, model_type, station_number)
         results[model_type] = plot_path
         handle.close()
     del models # Realsing the models from memory

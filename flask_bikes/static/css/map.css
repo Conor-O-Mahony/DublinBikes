@@ -37,7 +37,7 @@ body {
   border-radius: 20px;
 }
 .number {
-  display:none;
+  display: none;
 }
 .opencircle, .closedcircle {
     align-items: center;

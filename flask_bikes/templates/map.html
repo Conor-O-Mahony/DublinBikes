@@ -41,15 +41,17 @@
                 </div>
             </div>
 
-            <input type="date" placeholder="Choose a date" id="dateInput" name="dateInput" style="margin-top: 10px; margin-bottom: 10px; padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
-            
-            <div id="legend">
-                <span class="legend-color historical-color"></span> Historical 
-                <span class="legend-color predictive-color"></span> Predictive 
-            </div>
+            <div id="JourneyButtons">
+                <input type="date" placeholder="Choose a date" id="dateInput" name="dateInput" style="margin-top: 10px; margin-bottom: 10px; padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+                
+                <div id="legend">
+                    <span class="legend-color historical-color"></span> Historical 
+                    <span class="legend-color predictive-color"></span> Predictive 
+                </div>
 
-            <button type="button" id="showHistoricalData" class="collapse-btn" style="margin-top: 20px;">Show Historical Data</button>
-            <button type="button" id="showPredictiveData" class="collapse-btn" style="margin-top: 20px;">Show Predictive Data</button>
+                <button type="button" id="showHistoricalData" class="collapse-btn" style="margin-top: 20px;">Show Historical Data</button>
+                <button type="button" id="showPredictiveData" class="collapse-btn" style="margin-top: 20px;">Show Predictive Data</button>
+            </div>
         </form>
 
         <div id="dataPlot" style="margin-top: 20px;">
@@ -72,8 +74,6 @@
         <input type="text" id="searchbox" name="searchbox" size="35"/>
     </div>
 </div>
-
-
 
 <script src="../static/js/sidebar.js" type="text/javascript"></script>
 <script src="../static/js/forecast.js" type="text/javascript"></script>
@@ -164,13 +164,12 @@
                         map,
                         position: coords,
                         title: text,
-                        //label: { color: '#00aaff', fontWeight: 'bold', fontSize: '14px', text: text.split(',')[0] }
         });
         let latLng = searchboxmarker.position; // returns LatLng object
         map.panTo(latLng);
-        autocomplete1.set("place", searchboxautocomplete.getPlace())
-        let place = searchboxautocomplete.getPlace()
-        input1.value =  place.name
+        autocomplete1.set("place", searchboxautocomplete.getPlace());
+        let place = searchboxautocomplete.getPlace();
+        input1.value =  place.name;
         
         updateSidebarContent(null);
     });
@@ -186,7 +185,7 @@
             });
             // Add click listener to the marker
             marker.addListener("click", () => {
-                toggleHighlight(marker, station);
+                toggleHighlight(marker);
                 let sidebarwidth = document.getElementById('sidebar').style.width;
                 if (marker.content.classList.contains("highlight")) {
                     updateSidebarContent(station);
@@ -204,19 +203,27 @@
     }
 }
 
+function closeInfoWindows() {
+    markers.forEach(marker => {
+        if (marker.content.classList.contains("highlight")) {
+            toggleHighlight(marker);
+    }   
+    });              
+}
+
 function markerListener() {
     if (autocomplete1.getPlace()!=null && autocomplete2.getPlace()!=null) {
             if (searchboxmarker) {
                 searchboxmarker.setMap(null);
             }
+            closeInfoWindows()
             handleInputs();
         } else {
             clearMarkers();
         }
 }
 
-
-function toggleHighlight(markerView, station) {
+function toggleHighlight(markerView) {
     // Close highlights for the clicked marker
     if (markerView.content.classList.contains("highlight")) {
         markerView.content.classList.remove("highlight");
@@ -401,6 +408,12 @@ async function drawRoute(start,end,datetime) {
             });
     var closestToStart = findclosest(start,"PICKUP");
     var closestToEnd = findclosest(end,"SETDOWN");
+
+    startStation = closestToStart.content.getElementsByClassName("number")[0].textContent.replace(/\D/g, "");
+    endStation = closestToEnd.content.getElementsByClassName("number")[0].textContent.replace(/\D/g, "");
+    
+    displayPlot('predictive',startStation,1);
+    displayPlot('predictive',endStation,2);
 
     let leg1,leg2,leg3;
     leg1 = await fetchClosestRoute(markerJSON(startMarker),markerJSON(closestToStart),datetime,"WALK");
