@@ -70,9 +70,6 @@ function displayPlot(type,station=null,mode=0) {
         date = new Date();
         date = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
     }
-
-    console.log(stationNumber);
-    console.log(date);  
     
     if (!date) {
         alert("Please select a date.");
