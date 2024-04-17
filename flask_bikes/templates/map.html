@@ -145,7 +145,7 @@
         bounds: defaultBounds,
         componentRestrictions: { country: "IE" },
         fields: ['place_id', 'name', 'types'],
-        strictBounds: false,
+        strictBounds: true,
     };
     autocomplete1 = new Autocomplete(input1, options);
     google.maps.event.addListener(autocomplete1, 'place_changed', async function() {
