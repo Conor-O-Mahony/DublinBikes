@@ -407,7 +407,7 @@ async function drawRoute(start,end,datetime) {
     endMarker = new google.maps.marker.AdvancedMarkerElement({
                         map,
                         position: {lat: endLat, lng: endLng},
-                        title: "Finsh",
+                        title: "Finish",
             });
     var closestToStart = findclosest(start,"PICKUP");
     var closestToEnd = findclosest(end,"SETDOWN");
