@@ -417,6 +417,12 @@ tr:nth-child(odd) {
   background-color: yellow;
 }
 
+.flatpickr-day.current-day {
+  background-color: #f0bc8c !important; 
+  color: black !important;
+}
+
+
 .flatpickr-day.historical {
   background-color: blue;
   color: white;

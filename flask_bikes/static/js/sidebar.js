@@ -233,23 +233,64 @@ document.addEventListener('DOMContentLoaded', function() {
     flatpickr("#dateInput", {
         enableTime: false,
         dateFormat: "Y-m-d",
+        minDate: historicalStart,
+        maxDate: fiveDaysLater,
         onChange: function(selectedDates, dateStr, instance) {
-            handleButtonVisibility(new Date(dateStr));
+            const selectedDate = new Date(dateStr);
+            selectedDate.setHours(0, 0, 0, 0); // Normalize time component
+            handleButtonVisibility(selectedDate);
+        },
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+            const date = dayElem.dateObj;
+            const currentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+    
+            // Apply 'current-day' class if it's the current date
+            if (currentDate.getTime() === today.getTime()) {
+                dayElem.classList.add("current-day");
+            } else {
+                // Otherwise, apply 'historical' or 'predictive' based on the date
+                if (currentDate < today) {
+                    dayElem.classList.add("historical");
+                } else if (currentDate > today) {
+                    dayElem.classList.add("predictive");
+                }
+            }
         }
     });
+
+    stationsSelect.addEventListener('change', function() {
+        const selectedDate = dateInput.value ? new Date(dateInput.value) : null;
+        handleButtonVisibility(selectedDate);  //when station changes to make sure to handle the buttons
+    });
+    
+    
 });
 
 function handleButtonVisibility(selectedDate) {
     const historicalButton = document.getElementById('showHistoricalData');
     const predictiveButton = document.getElementById('showPredictiveData');
+    const stationsSelect = document.getElementById('stations-select');
+    const selectedStationNumber = stationsSelect.value;  
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);  
 
-    if (selectedDate >= historicalStart && selectedDate <= today) {
-        historicalButton.style.display = 'block';
-        predictiveButton.style.display = 'none';
-    } else if (selectedDate > today && selectedDate <= fiveDaysLater) {
-        predictiveButton.style.display = 'block';
-        historicalButton.style.display = 'none';
+    // Checking if both a station and a date are selected
+    if (selectedStationNumber && selectedDate) {
+        if (selectedDate <= today) {
+            historicalButton.style.display = 'block';
+        } else {
+            historicalButton.style.display = 'none';
+        }
+
+        if (selectedDate >= today && selectedDate <= fiveDaysLater) {
+            predictiveButton.style.display = 'block';
+        } else {
+            predictiveButton.style.display = 'none';
+        }
     } else {
+        // Hiding both buttons if either the station or the date are selected
         historicalButton.style.display = 'none';
         predictiveButton.style.display = 'none';
     }
