@@ -39,6 +39,12 @@ body {
 .number {
   display: none;
 }
+#triptime {
+  display: none;
+}
+#triptimelabel {
+  display: none;
+}
 .opencircle, .closedcircle {
     align-items: center;
     display: flex;
