@@ -1,95 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Forecast</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/forecast.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Current weather in Dublin</h1>
-        {% if error %}
-            <p>Error: {{ error }}</p>
-        {% else %}
-        <div id="current-weather">
-            <div class="weather-detail">
-                <p><strong>Temperature:</strong> {{ temp }}°C</p>
-                <p><strong>Description:</strong> {{ desc }}</p>
-                <p><strong>Wind Speed:</strong> {{ wind }} m/s</p>
-                <p><strong>Rain (last hour):</strong> {{ rain }} mm</p>
-                <p><strong>Time:</strong> {{ time }}</p>
-            </div>
-            <div id="current-icon">
-                <img src="http://openweathermap.org/img/wn/{{ icon }}.png" alt="Weather Icon">
-            </div>
+{% extends "base.html" %}
+
+{% block title %}
+Weather Forecast - DublinBikes
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forecast.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Current weather in Dublin</h1>
+    {% if error %}
+        <p>Error: {{ error }}</p>
+    {% else %}
+    <div id="current-weather">
+        <div class="weather-detail">
+            <p><strong>Temperature:</strong> {{ temp }}°C</p>
+            <p><strong>Description:</strong> {{ desc }}</p>
+            <p><strong>Wind Speed:</strong> {{ wind }} m/s</p>
+            <p><strong>Rain (last hour):</strong> {{ rain }} mm</p>
+            <p><strong>Time:</strong> {{ time }}</p>
         </div>
-
-            <h2>Hourly Forecast</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Temperature (°C)</th>
-                        <th>Description</th>
-                        <th>Wind Speed (m/s)</th>
-                        <th>Rain (mm)</th>
-                        <th>Icon</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for forecast in hourly_forecasts %}
-                    <tr>
-                        <td>{{ forecast.dt_txt }}</td>
-                        <td>{{ forecast.main.temp }} °C</td>
-                        <td>{{ forecast.weather[0].description }}</td>
-                        <td>{{ forecast.wind.speed }} m/s</td>
-                        <td>
-                            {% if forecast.rain %}
-                                {{ forecast.rain['3h']|default('0', true) }} mm
-                            {% else %}
-                                0 mm
-                            {% endif %}
-                        </td>
-                        <td><img src="http://openweathermap.org/img/wn/{{ forecast.weather[0].icon }}.png" alt="Weather Icon"></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            
-
-            <h2>Daily Forecast</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Temperature (°C)</th>
-                        <th>Description</th>
-                        <th>Wind Speed (m/s)</th>
-                        <th>Rain (mm)</th>
-                        <th>Icon</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for forecast in daily_forecasts %}
-                    <tr>
-                        <td>{{ forecast.display_date }}</td>
-                        <td>{{ forecast.main.temp }}°C</td>
-                        <td>{{ forecast.weather[0].description }}</td>
-                        <td>{{ forecast.wind.speed }} m/s</td>
-                        <td>
-                            {% if forecast.rain %}
-                                {{ forecast.rain['3h']|default('0', true) }} mm
-                            {% else %}
-                                0 mm
-                            {% endif %}
-                        </td>
-                        <td><img src="http://openweathermap.org/img/wn/{{ forecast.weather[0].icon }}.png" alt="Weather Icon"></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
+        <div id="current-icon">
+            <img src="http://openweathermap.org/img/wn/{{ icon }}.png" alt="Weather Icon">
+        </div>
     </div>
-</body>
-</html>
+
+        <h2>Hourly Forecast</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Temperature (°C)</th>
+                    <th>Description</th>
+                    <th>Wind Speed (m/s)</th>
+                    <th>Rain (mm)</th>
+                    <th>Icon</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for forecast in hourly_forecasts %}
+                <tr>
+                    <td>{{ forecast.dt_txt }}</td>
+                    <td>{{ forecast.main.temp }} °C</td>
+                    <td>{{ forecast.weather[0].description }}</td>
+                    <td>{{ forecast.wind.speed }} m/s</td>
+                    <td>
+                        {% if forecast.rain %}
+                            {{ forecast.rain['3h']|default('0', true) }} mm
+                        {% else %}
+                            0 mm
+                        {% endif %}
+                    </td>
+                    <td><img src="http://openweathermap.org/img/wn/{{ forecast.weather[0].icon }}.png" alt="Weather Icon"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+
+        <h2>Daily Forecast</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temperature (°C)</th>
+                    <th>Description</th>
+                    <th>Wind Speed (m/s)</th>
+                    <th>Rain (mm)</th>
+                    <th>Icon</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for forecast in daily_forecasts %}
+                <tr>
+                    <td>{{ forecast.display_date }}</td>
+                    <td>{{ forecast.main.temp }}°C</td>
+                    <td>{{ forecast.weather[0].description }}</td>
+                    <td>{{ forecast.wind.speed }} m/s</td>
+                    <td>
+                        {% if forecast.rain %}
+                            {{ forecast.rain['3h']|default('0', true) }} mm
+                        {% else %}
+                            0 mm
+                        {% endif %}
+                    </td>
+                    <td><img src="http://openweathermap.org/img/wn/{{ forecast.weather[0].icon }}.png" alt="Weather Icon"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}
