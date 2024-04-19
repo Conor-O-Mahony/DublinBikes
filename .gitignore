@@ -1,4 +1,10 @@
-db.env
+.env
 settings.js
 .DS_Store
 *.pkl
+/__pycache__
+*.pyc
+/.ipynb_checkpoints
+/flask_bikes/__pycache__
+/Scrapers/Scraper/__pycache__
+/Scrapers/Scraper/.ipynb_checkpoints

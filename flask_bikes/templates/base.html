@@ -10,6 +10,7 @@
     <!--<script type="module" src="{{ url_for('static', filename='js/index.js') }}"></script> NOT SURE IF NECESSARY?-->
     <script src="https://use.fontawesome.com/releases/v6.2.0/js/all.js"></script>
     <script src="../static/js/forecast.js" type="text/javascript"></script>
+    <script src="../static/js/settings.js" type="text/javascript"></script>
 
 </head>
 <body>
@@ -39,6 +40,11 @@
 </div>
 </body>
 <script src="../static/js/iconLoad.js"></script>
-<script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdoZN5073jaF1EPmKvjqpi6Y2ZYbHW52Y&loading=async&libraries=places&callback=initMap"></script>
+<script id="loadGmaps"></script>
+<script>
+    let api_key = environment.GMAPS_API_KEY;
+    let url = `https://maps.googleapis.com/maps/api/js?key=${api_key}&loading=async&libraries=places&callback=initMap`;
+    document.getElementById('loadGmaps').src = url;
+</script>
 </html>
 

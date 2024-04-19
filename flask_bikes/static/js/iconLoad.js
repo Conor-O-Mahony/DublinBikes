@@ -1,7 +1,7 @@
 
 document.addEventListener("DOMContentLoaded", function() {
     const city = "Dublin,IE";
-    const api_key = "dd05f29b3c673dec7f4a9df4f8cce8fd";
+    const api_key = environment.WEATHER_API_KEY;
     const units = "metric";
     const url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${api_key}&units=${units}`;
 

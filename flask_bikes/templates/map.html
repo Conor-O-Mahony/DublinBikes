@@ -79,7 +79,6 @@
 </div>
 
 <script src="../static/js/sidebar.js" type="text/javascript"></script>
-<script src="../static/js/settings.js" type="text/javascript"></script>
 <script>
     // Define a JavaScript variable and embed the data
     var stations = {{ data|tojson }};
@@ -127,7 +126,7 @@
     map = new Map(document.getElementById("map"), {
         zoom: 15,
         center: dublin,
-        mapId: "2ff326f6e5a1075b",
+        mapId: environment.MAP_ID,
         disableDefaultUI: true, // a way to quickly hide all controls
     });
 
