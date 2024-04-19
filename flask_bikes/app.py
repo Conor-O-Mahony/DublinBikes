@@ -18,6 +18,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
 from dotenv import load_dotenv
 
+COLOR = 'white'
+matplotlib.rcParams['text.color'] = COLOR
+matplotlib.rcParams['axes.labelcolor'] = COLOR
+matplotlib.rcParams['xtick.color'] = COLOR
+matplotlib.rcParams['ytick.color'] = COLOR
+
 # conversion to Dublin time
 utc_time = datetime.now(timezone.utc)
 local_time = utc_time.astimezone(ZoneInfo("Europe/Dublin"))
@@ -28,20 +34,19 @@ load_dotenv('../.env')
 
 app = Flask(__name__)
 
-def fetch_weather_data(date,mode=0):
+def fetch_weather_data(date):
     city = "Dublin,IE"
     api_key = os.getenv("WEATHER_API_KEY")
     units = "metric"
-    if mode==0:
-        forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units={units}"
-    else:
-        forecast_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units={units}"
+    #if mode==0:
+    forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units={units}"
+    #else:
+    #    forecast_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units={units}"
     response = requests.get(forecast_url)
     if response.status_code == 200:
         forecast_data = response.json()
         weather_data = []
-        if mode==0:
-            for entry in forecast_data['list']:
+        for entry in forecast_data['list']:
                 forecast_time = datetime.fromtimestamp(entry['dt'], tz=timezone.utc)
                 if forecast_time.date() == datetime.strptime(date, "%Y-%m-%d").date():
                     weather_data.append({
@@ -51,17 +56,7 @@ def fetch_weather_data(date,mode=0):
                         'rainfall': entry.get('rain', {}).get('3h', 0) / 3 if 'rain' in entry else 0,
                         'weather_description': entry['weather'][0]['description'].lower()
                     })
-            return weather_data
-        else:
-            forecast_time = datetime.fromtimestamp(forecast_data['dt'], tz=timezone.utc)
-            weather_data.append({
-                'hour': forecast_time.hour,
-                'temperature': forecast_data['main']['temp'],
-                'wind_speed': forecast_data['wind']['speed'],
-                'rainfall': forecast_data.get('rain', {}).get('3h', 0) / 3 if 'rain' in forecast_data else 0,
-                'weather_description': forecast_data['weather'][0]['description'].lower()
-            })
-            return weather_data
+        return weather_data
     return None
 
 def map_weather_conditions(description):
@@ -86,7 +81,7 @@ def map_weather_conditions(description):
 def generate_plot(predictions, hours, model_type, station):
     plt.figure(figsize=(10, 5))
     y=np.around(predictions).astype(int)
-    plt.plot(hours, y, marker='o', linewidth=3)
+    plt.plot(hours, y, marker='o', linewidth=6,color='white')
 
     force_yaxis_int = range(int(np.floor(min(y))), int(np.ceil(max(y))+1))
     plt.yticks(force_yaxis_int)
@@ -103,10 +98,12 @@ def generate_plot(predictions, hours, model_type, station):
     plt.xlabel('Hour of the Day', fontsize=18, weight='bold')
     plt.ylabel(f'{model_type.capitalize()} Available', fontsize=18, weight='bold')
     plt.grid(True)
+    plt.tight_layout()
     plt.minorticks_off() #Remove minor ticks
     plot_filename = f'static/images/{model_type}_predictions_plot.png'
     plt.savefig(plot_filename, transparent=True)
     plt.close()
+    
     return url_for('static', filename=os.path.basename(plot_filename))
 
 def fetch_historical_data(engine, station_number, date):
@@ -138,17 +135,29 @@ def fetch_historical_data(engine, station_number, date):
 
 def generate_historical_plot(data, timestamps, type, station_number, date):
     try:
+        y=np.around(data).astype(int)
         plt.figure(figsize=(10, 5))
-        plt.plot(timestamps, data, marker='o', linestyle='-', color='b')
-        plt.title(f'Historical {type} Availability on {date} for Station {station_number}')
-        plt.xlabel('Time of Day')
-        plt.ylabel(f'Number of {type} Available')
+        plt.plot(timestamps, y, marker='o', linewidth=6,color='white')
+
+        force_yaxis_int = range(int(np.floor(min(y))), int(np.ceil(max(y))+1))
+        plt.yticks(force_yaxis_int)
+        plt.tick_params(axis='both', which='major', labelsize=16, width=2)
+
+        plt.gca().spines['top'].set_linewidth(2)
+        plt.gca().spines['right'].set_linewidth(2)
+        plt.gca().spines['bottom'].set_linewidth(2)
+        plt.gca().spines['left'].set_linewidth(2) 
+
+        plt.title(f'Historical {type} Availability on {date} for Station {station_number}', fontsize=18, weight='bold')
+        plt.xlabel('Time of Day', fontsize=18, weight='bold')
+        plt.ylabel(f'Number of {type} Available', fontsize=18, weight='bold')
         plt.grid(True)
+        plt.minorticks_off() #Remove minor ticks
         plt.xticks(rotation=45)
         plt.tight_layout()
         
         plot_filename = f'static/images/{type.lower()}_historical_plot.png'
-        plt.savefig(plot_filename)
+        plt.savefig(plot_filename, transparent=True)
         plt.close()
         
         return os.path.basename(plot_filename)
@@ -177,8 +186,7 @@ def predictive_plot(station_number,mode):
     if not date:
         return jsonify({'error': 'Date not provided'}), 400
 
-    weather_data = fetch_weather_data(date,mode)
-    print(weather_data)
+    weather_data = fetch_weather_data(date)
     if not weather_data:
         print("NO WEATHER")
         return jsonify({'error': 'Weather data not available for this date'}), 404
@@ -264,7 +272,6 @@ def forecast():
     units = "metric"
     current_weather_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units={units}"
     forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units={units}"
-    print(local_time)
 
     # Fetching the current weather info
     current_response = requests.get(current_weather_url)
@@ -348,6 +355,6 @@ def stations():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=8000, debug=True)
 
 
