@@ -39,6 +39,11 @@
 </div>
 </body>
 <script src="../static/js/iconLoad.js"></script> <!--Google maps API key is restriced to our site for so its fine to keep it public. Will be displayed in the browser console anyway.-->
-<script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCUq_aTABAd575LoPxA-eK4Wr2p7gfu_V8&loading=async&libraries=places&callback=initMap"></script>
+<script id="loadGmaps"></script>
+<script>
+    let api_key = environment.GMAPS_API_KEY;
+    let url = `https://maps.googleapis.com/maps/api/js?key=${api_key}&loading=async&libraries=places&callback=initMap`;
+    document.getElementById('loadGmaps').src = url;
+</script>
 </html>
 
