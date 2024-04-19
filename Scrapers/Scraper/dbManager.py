@@ -2,8 +2,7 @@ from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 import os
 
-
-load_dotenv('db.env')
+load_dotenv('../../.env')
 
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 URI = 'dublinbikes.clw8uqmac8qf.eu-west-1.rds.amazonaws.com'

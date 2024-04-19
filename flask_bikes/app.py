@@ -16,6 +16,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
+from dotenv import load_dotenv
 
 # conversion to Dublin time
 utc_time = datetime.now(timezone.utc)
@@ -23,11 +24,13 @@ local_time = utc_time.astimezone(ZoneInfo("Europe/Dublin"))
 Session = sessionmaker(bind=engine)
 model_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Models', 'pickle_files'))
 
+load_dotenv('../.env')
+
 app = Flask(__name__)
 
 def fetch_weather_data(date,mode=0):
     city = "Dublin,IE"
-    api_key = "dd05f29b3c673dec7f4a9df4f8cce8fd" 
+    api_key = os.getenv("WEATHER_API_KEY")
     units = "metric"
     if mode==0:
         forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units={units}"
@@ -257,7 +260,7 @@ def faq():
 def forecast():
     # Foreacst placeholders and urls
     city = "Dublin,IE"
-    api_key = "dd05f29b3c673dec7f4a9df4f8cce8fd"
+    api_key = os.getenv("WEATHER_API_KEY")
     units = "metric"
     current_weather_url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units={units}"
     forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units={units}"

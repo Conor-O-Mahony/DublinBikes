@@ -2,12 +2,14 @@ import requests
 from datetime import datetime
 from sqlalchemy import create_engine, insert, text, MetaData, Table, Column, Integer, String, Float, TIMESTAMP
 import dbManager
+from dotenv import load_dotenv
+import os
 
-
-
+load_dotenv('../../.env')
 
 def fetch_weather():
-    url = f"http://api.openweathermap.org/data/2.5/weather?q=dublin&appid=63b3042347926a25ee5ba9062aa724c0&units=metric"
+    api_key = os.getenv("WEATHER_API_KEY")
+    url = f"http://api.openweathermap.org/data/2.5/weather?q=dublin&appid={api_key}&units=metric"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()

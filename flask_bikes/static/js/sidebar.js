@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     stationsSelect.addEventListener('change', function() {
         var selectedStationNumber = this.value; 
-        console.log("Selected station number from dropdown:", selectedStationNumber);
+        //console.log("Selected station number from dropdown:", selectedStationNumber);
 
         if (selectedStationNumber) {
             // ensuring the number is treated as a string
