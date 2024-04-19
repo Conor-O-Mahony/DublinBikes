@@ -25,4 +25,11 @@
         </nav>
     </div>
 </body>
+<!--Google Maps API key is restricted to our site so this is fine-->
+<script defer id="loadmaps"async defer></script>
+<script>
+    let api_key = environment.GMAPS_API_KEY;
+    let url = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=initMap`;
+    document.getElementById('loadmaps').src = url;
+</script>
 </html>
