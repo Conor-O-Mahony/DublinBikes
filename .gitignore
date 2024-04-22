@@ -5,3 +5,4 @@ settings.js
 /__pycache__
 *.pyc
 /.ipynb_checkpoints
+Scrapers/Scraper/.env
